@@ -29,7 +29,7 @@ function ResetForm() {
     return (
       <div className="grid gap-4">
         <Alert tone="success">Your password was changed.</Alert>
-        <Link href="/sign-in" className="inline-flex h-11 items-center justify-center rounded-full bg-zinc-900 text-sm font-medium text-white dark:bg-white dark:text-zinc-900">
+        <Link href="/sign-in" className="btn-primary h-11">
           Sign in
         </Link>
       </div>

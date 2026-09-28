@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
     <AuthShell
       title="Reset your password"
       subtitle="We'll email you a link to choose a new one."
-      footer={<Link href="/sign-in" className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-white">Back to sign in</Link>}
+      footer={<Link href="/sign-in" className="font-medium text-accent hover:underline">Back to sign in</Link>}
     >
       {sent ? (
         <Alert tone="success">If an account exists for {email}, a reset link is on its way. It expires in 1 hour.</Alert>

@@ -58,12 +58,12 @@ export function AccountSettings({ name, currentToken, sessions }: { name: string
     router.refresh();
   };
 
-  const card = "rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900";
+  const card = "card p-6";
 
   return (
     <>
       <section aria-labelledby="profile-heading" className="mt-12">
-        <h2 id="profile-heading" className="mb-4 text-sm font-medium text-zinc-500">Profile</h2>
+        <h2 id="profile-heading" className="mb-4 text-xl font-semibold tracking-tight">Profile</h2>
         <form onSubmit={saveName} className={`${card} grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end`}>
           <Field label="Name">
             <input required value={displayName} onChange={(e) => setDisplayName(e.target.value)} className={inputClass} />
@@ -74,7 +74,7 @@ export function AccountSettings({ name, currentToken, sessions }: { name: string
       </section>
 
       <section aria-labelledby="security-heading" className="mt-12">
-        <h2 id="security-heading" className="mb-4 text-sm font-medium text-zinc-500">Security</h2>
+        <h2 id="security-heading" className="mb-4 text-xl font-semibold tracking-tight">Security</h2>
         <form onSubmit={changePassword} className={`${card} grid gap-4`}>
           <p className="font-medium">Change password</p>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -96,15 +96,15 @@ export function AccountSettings({ name, currentToken, sessions }: { name: string
               <Button variant="secondary" className="h-9" onClick={revokeOthers} disabled={busy === "others"}>Sign out other devices</Button>
             )}
           </div>
-          <ul className="mt-4 divide-y divide-zinc-200 dark:divide-zinc-800">
+          <ul className="mt-4 divide-y divide-line">
             {sessions.map((s) => (
               <li key={s.token} className="flex items-center justify-between gap-4 py-3">
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
                     {describeDevice(s.userAgent)}
-                    {s.token === currentToken && <span className="ml-2 text-xs font-normal text-emerald-600">This device</span>}
+                    {s.token === currentToken && <span className="ml-2 text-xs font-normal text-emerald-300">This device</span>}
                   </p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-muted">
                     Signed in {new Date(s.createdAt).toLocaleDateString(undefined, { dateStyle: "medium" })}
                     {s.ipAddress ? ` · ${s.ipAddress}` : ""}
                   </p>

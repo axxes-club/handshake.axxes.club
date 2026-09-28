@@ -28,7 +28,7 @@ export function SignUpForm({ next, initialCode }: { next: string; initialCode: s
     <AuthShell
       title="Create your AXXES account"
       subtitle="One account for the AXXES Suite, Folders, Krates, Tollbooth and more."
-      footer={<>Already have an account? <Link href={`/sign-in?redirect=${encodeURIComponent(next)}`} className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-white">Sign in</Link></>}
+      footer={<>Already have an account? <Link href={`/sign-in?redirect=${encodeURIComponent(next)}`} className="font-medium text-accent hover:underline">Sign in</Link></>}
     >
       <form onSubmit={submit} className="grid gap-4">
         <Field label="Full name">

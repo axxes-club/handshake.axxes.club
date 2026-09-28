@@ -1,4 +1,6 @@
 import * as React from "react";
+import Link from "next/link";
+import { CATEGORIES, PRODUCTS, type Product } from "@/lib/products";
 
 export function cx(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -6,13 +8,79 @@ export function cx(...classes: (string | false | null | undefined)[]) {
 
 export function Brand({ className }: { className?: string }) {
   return (
-    <div className={cx("flex items-center gap-2", className)}>
-      <span className="flex size-8 items-center justify-center rounded-lg bg-zinc-900 text-sm font-bold text-white dark:bg-white dark:text-zinc-900">
-        A
+    <Link href="/" className={cx("flex items-center gap-2.5", className)}>
+      <span className="grid size-8 place-items-center rounded-lg bg-accent font-mono text-sm font-bold text-accent-ink">A</span>
+      <span className="leading-tight">
+        <span className="block text-[15px] font-semibold tracking-tight">AXXES</span>
+        <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Account · Handshake</span>
       </span>
-      <span className="text-[15px] font-semibold tracking-tight">
-        AXXES <span className="font-normal text-zinc-500">Account</span>
-      </span>
+    </Link>
+  );
+}
+
+export function ProductMark({ product, size = "md" }: { product: Product; size?: "sm" | "md" }) {
+  return (
+    <span
+      className={cx("grid shrink-0 place-items-center rounded-xl font-mono font-bold text-[#0a0a0b]", size === "sm" ? "size-8 text-xs" : "size-11 text-base")}
+      style={{ background: product.color }}
+    >
+      {product.name.replace(/^AXXES /, "")[0]}
+    </span>
+  );
+}
+
+function Status({ product }: { product: Product }) {
+  if (product.status === "soon") return <span className="rounded-full bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted ring-1 ring-white/10">Soon</span>;
+  if (product.status === "beta") return <span className="rounded-full bg-accent/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-accent ring-1 ring-accent/20">Beta</span>;
+  return null;
+}
+
+// The whole product family, grouped by category
+export function ProductGrid({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className="space-y-10">
+      {CATEGORIES.map((cat) => {
+        const items = PRODUCTS.filter((p) => p.category === cat.key);
+        if (!items.length) return null;
+        return (
+          <section key={cat.key} aria-labelledby={`cat-${cat.key}`}>
+            <div className="mb-3 flex items-baseline gap-3">
+              <h3 id={`cat-${cat.key}`} className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">{cat.key}</h3>
+              <p className="text-xs text-muted">{cat.blurb}</p>
+            </div>
+            <div className={cx("grid gap-3", cat.key === "Suite" ? "" : "sm:grid-cols-2 lg:grid-cols-3")}>
+              {items.map((p) => {
+                const soon = p.status === "soon";
+                const Tag = soon ? "div" : "a";
+                return (
+                  <Tag
+                    key={p.key}
+                    {...(soon ? {} : { href: p.url })}
+                    data-product={p.key}
+                    className={cx(
+                      "card group flex gap-4 p-5 transition",
+                      soon ? "opacity-60" : "hover:border-accent/40 hover:bg-panel-2",
+                      cat.key === "Suite" && "items-center sm:p-6"
+                    )}
+                  >
+                    <ProductMark product={p} />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="font-medium">{p.name}</span>
+                        <Status product={p} />
+                        {!p.sso && !soon && <span className="font-mono text-[10px] uppercase tracking-wider text-muted">Separate login</span>}
+                      </span>
+                      <span className="mt-0.5 block text-sm text-text/80">{p.tagline}</span>
+                      {!compact && <span className="mt-1.5 block text-xs leading-relaxed text-muted">{p.description}</span>}
+                      <span className="mt-2 block font-mono text-[11px] text-muted group-hover:text-accent">{p.url.replace("https://", "")}</span>
+                    </span>
+                  </Tag>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }
@@ -23,29 +91,50 @@ export function AuthShell({ title, subtitle, children, footer }: {
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
+  const sso = PRODUCTS.filter((p) => p.sso || p.status === "live");
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center bg-zinc-50 px-4 py-10 dark:bg-zinc-950">
-      <div className="w-full max-w-[420px] rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm sm:p-10 dark:border-zinc-800 dark:bg-zinc-900">
+    <main className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      <div className="flex flex-col px-6 py-8 sm:px-12">
         <Brand />
-        <h1 className="mt-8 text-2xl font-semibold tracking-tight">{title}</h1>
-        {subtitle && <p className="mt-2 text-[15px] text-zinc-500">{subtitle}</p>}
-        <div className="mt-8">{children}</div>
+        <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center py-12">
+          <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+          {subtitle && <p className="mt-2 text-muted">{subtitle}</p>}
+          <div className="mt-8">{children}</div>
+          {footer && <div className="mt-8 text-sm text-muted">{footer}</div>}
+        </div>
+        <p className="text-xs text-muted">
+          <Link href="/apps" className="hover:text-text">All AXXES products</Link> · <a href="https://axxes.club" className="hover:text-text">axxes.club</a>
+        </p>
       </div>
-      {footer && <div className="mt-6 text-sm text-zinc-500">{footer}</div>}
-      <p className="mt-10 text-xs text-zinc-400">One account for every AXXES product · Handshake</p>
+
+      <aside className="relative hidden overflow-hidden border-l border-line bg-panel lg:flex lg:flex-col lg:justify-center lg:px-14" aria-label="AXXES products">
+        <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 size-[520px] rounded-full bg-accent/10 blur-[120px]" />
+        <p className="relative font-mono text-[11px] uppercase tracking-[0.25em] text-accent">One account</p>
+        <h2 className="relative mt-4 max-w-md text-4xl font-semibold leading-tight tracking-tight">Sign in once. Every AXXES app opens.</h2>
+        <ul className="relative mt-10 grid max-w-lg grid-cols-2 gap-3">
+          {sso.map((p) => (
+            <li key={p.key} className="flex items-center gap-3 rounded-xl border border-line bg-bg/60 p-3">
+              <ProductMark product={p} size="sm" />
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-medium">{p.name}</span>
+                <span className="block truncate text-xs text-muted">{p.tagline}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </aside>
     </main>
   );
 }
 
-export const inputClass =
-  "h-12 w-full rounded-xl border border-zinc-300 bg-transparent px-4 text-[15px] outline-none transition focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/10 dark:border-zinc-700 dark:focus:border-white dark:focus:ring-white/10";
+export const inputClass = "input h-11 text-[15px]";
 
 export function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: React.ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium">
-      {label}
+    <label className="grid gap-1.5 text-sm">
+      <span className="text-muted">{label}</span>
       {children}
-      {hint && <span className="text-xs font-normal text-zinc-500">{hint}</span>}
+      {hint && <span className="text-xs text-muted">{hint}</span>}
     </label>
   );
 }
@@ -57,11 +146,11 @@ export function Button({ className, variant = "primary", ...props }: React.Butto
     <button
       {...props}
       className={cx(
-        "inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition disabled:pointer-events-none disabled:opacity-50",
-        variant === "primary" && "bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200",
-        variant === "secondary" && "border border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800",
-        variant === "ghost" && "hover:bg-zinc-100 dark:hover:bg-zinc-800",
-        variant === "danger" && "text-red-600 hover:bg-red-50 dark:hover:bg-red-950",
+        variant === "primary" && "btn-primary",
+        variant === "secondary" && "btn-ghost",
+        variant === "ghost" && "btn text-muted hover:bg-panel-2 hover:text-text",
+        variant === "danger" && "btn-danger",
+        "h-11 px-5",
         className
       )}
     />
@@ -72,10 +161,7 @@ export function Alert({ tone = "error", children }: { tone?: "error" | "success"
   return (
     <p
       role={tone === "error" ? "alert" : "status"}
-      className={cx(
-        "rounded-xl px-4 py-3 text-sm",
-        tone === "error" ? "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-      )}
+      className={cx("rounded-xl px-4 py-3 text-sm ring-1", tone === "error" ? "bg-red-400/10 text-red-300 ring-red-400/20" : "bg-emerald-400/10 text-emerald-300 ring-emerald-400/20")}
     >
       {children}
     </p>

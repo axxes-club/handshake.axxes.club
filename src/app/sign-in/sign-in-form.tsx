@@ -29,7 +29,7 @@ export function SignInForm({ next }: { next: string }) {
     <AuthShell
       title="Sign in"
       subtitle="Use your AXXES account to continue."
-      footer={<>New to AXXES? <Link href={`/sign-up${query}`} className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-white">Create an account</Link></>}
+      footer={<>New to AXXES? <Link href={`/sign-up${query}`} className="font-medium text-accent hover:underline">Create an account</Link></>}
     >
       <form onSubmit={submit} className="grid gap-4">
         <Field label="Email">
@@ -40,7 +40,7 @@ export function SignInForm({ next }: { next: string }) {
         </Field>
         {error && <Alert>{error}</Alert>}
         <div className="mt-2 flex items-center justify-between">
-          <Link href={`/forgot-password${query}`} className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+          <Link href={`/forgot-password${query}`} className="text-sm text-muted hover:text-text">
             Forgot password?
           </Link>
           <Button type="submit" disabled={pending}>{pending ? "Signing in…" : "Sign in"}</Button>
