@@ -48,13 +48,13 @@ function client(
   };
 }
 
-/** qortr answers on three domains; all three are first-party. */
+/** qortr answers on three domains (plus www); all are first-party. Path matches qortr's /api/auth/axxes/callback route. */
 const QORTR_REDIRECTS = [
-  "https://qortr.axxes.club/api/auth/callback/axxes",
-  "https://qortr.app/api/auth/callback/axxes",
-  "https://qortr.com/api/auth/callback/axxes",
+  ...["qortr.axxes.club", "qortr.app", "www.qortr.app", "qortr.com", "www.qortr.com"].map(
+    (host) => `https://${host}/api/auth/axxes/callback`
+  ),
   // Local development, so the flow can be exercised before it ships.
-  "http://localhost:3000/api/auth/callback/axxes",
+  "http://localhost:3000/api/auth/axxes/callback",
 ];
 
 export function oidcClients(): OidcClient[] {
