@@ -4,6 +4,8 @@ import { nextCookies } from "better-auth/next-js";
 import { db } from "./db";
 import * as schema from "./schema";
 import { sendPasswordResetEmail } from "./email";
+import { oidcProvider } from "better-auth/plugins";
+import { ALLOWED_SCOPES, oidcClients } from "./oidc";
 
 // Set in production so every *.axxes.club app shares one signed-in session
 const cookieDomain = process.env.AUTH_COOKIE_DOMAIN;
@@ -16,7 +18,15 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, {
     provider: "pg",
-    schema: { user: schema.user, session: schema.session, account: schema.account, verification: schema.verification },
+    schema: {
+      user: schema.user,
+      session: schema.session,
+      account: schema.account,
+      verification: schema.verification,
+      oauthApplication: schema.oauthApplication,
+      oauthAccessToken: schema.oauthAccessToken,
+      oauthConsent: schema.oauthConsent,
+    },
   }),
   emailAndPassword: {
     enabled: true,
@@ -29,5 +39,29 @@ export const auth = betterAuth({
   disabledPaths: ["/sign-up/email"],
   trustedOrigins,
   advanced: cookieDomain ? { crossSubDomainCookies: { enabled: true, domain: cookieDomain } } : undefined,
-  plugins: [nextCookies()],
+  plugins: [
+    nextCookies(),
+    // Handshake is the identity provider for the suite. A signed-in AXXES
+    // account can enter any registered product without a second sign-up.
+    // Clients live in code (src/lib/oidc.ts), not in a public registration
+    // endpoint, so adding a product is a reviewed change.
+    oidcProvider({
+      loginPage: "/sign-in",
+      metadata: {
+        issuer: process.env.BETTER_AUTH_URL,
+      },
+      scopes: ALLOWED_SCOPES,
+      defaultScope: "openid email profile",
+      // PKCE on. The authorization code is bound to the client that asked
+      // for it, so an intercepted code is useless on its own.
+      requirePKCE: true,
+      allowDynamicClientRegistration: false,
+      trustedClients: oidcClients(),
+      // Extra claims a product can read, so RBAC there doesn't need a
+      // second round trip back here.
+      getAdditionalUserInfoClaim: async (user) => ({
+        axxes_role: user.isSuperadmin ? "superadmin" : "member",
+      }),
+    }),
+  ],
 });
