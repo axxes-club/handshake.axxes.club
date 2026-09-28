@@ -6,7 +6,10 @@ set -euo pipefail
 DEV="$HOME/Developer"
 HS="https://handshake.axxes.club"
 
-curl -fsS -o /dev/null "$HS/sign-in" || { echo "✗ $HS isn't reachable yet — add the DNS record first"; exit 1; }
+# Resolve through a public resolver so a stale local DNS cache doesn't block the check
+ip="$(dig +short @1.1.1.1 handshake.axxes.club | tail -1)"
+[ -n "$ip" ] && curl -fsS -o /dev/null --resolve "handshake.axxes.club:443:$ip" "$HS/sign-in" \
+  || { echo "✗ $HS isn't reachable yet — add the DNS record first"; exit 1; }
 
 secret_file="$(mktemp)"; chmod 600 "$secret_file"; trap 'rm -f "$secret_file"' EXIT
 node -e 'const t=require("fs").readFileSync(process.argv[1],"utf8");const m=t.match(/^BETTER_AUTH_SECRET=(.*)$/m)[1];process.stdout.write(m.startsWith("\"")?JSON.parse(m):m)' \
@@ -30,7 +33,7 @@ while IFS='|' read -r dir urlvar url; do
 done <<'APPS'
 handshake.axxes.club|BETTER_AUTH_URL|https://handshake.axxes.club
 members.axxes.club|BETTER_AUTH_BASE_URL|https://members.axxes.club
-dam.axxes.club|BETTER_AUTH_URL|https://dam.axxes.club
+dam.axxes.club|BETTER_AUTH_URL|https://folders.axxes.club
 pulse.axxes.club|BETTER_AUTH_URL|https://pulse.axxes.club
 manifest.axxes.club|BETTER_AUTH_URL|https://manifest.axxes.club
 tollbooth.axxes.club|BETTER_AUTH_URL|https://tollbooth.axxes.club
