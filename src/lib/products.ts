@@ -38,7 +38,7 @@ export const PRODUCTS: Product[] = [
     description: "A fast, familiar file library with folders, previews, share links and upload-from-phone.",
   },
   {
-    key: "nexus", name: "Nexus", category: "Work", color: "#14b8a6", url: "https://nexus.axxes.club", status: "soon",
+    key: "nexus", name: "Nexus", category: "Work", color: "#2dd4bf", url: "https://nexus.axxes.club", sso: true, status: "beta",
     tagline: "Your team's knowledge base",
     description: "Docs, wikis and an intranet your team will actually use — linked pages, a graph of everything you know.",
   },

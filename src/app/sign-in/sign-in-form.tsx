@@ -16,13 +16,14 @@ export function SignInForm({ next }: { next: string }) {
     e.preventDefault();
     setPending(true);
     setError(null);
-    const { error } = await authClient.signIn.email({ email, password });
+    const { data, error } = await authClient.signIn.email({ email, password });
     if (error) {
       setError(error.message ?? "Couldn't sign you in");
       setPending(false);
       return;
     }
-    window.location.assign(next);
+    // Mid-OIDC sign-in: Handshake answers with the product's callback URL
+    window.location.assign(data?.redirect && data.url ? data.url : next);
   };
 
   return (
