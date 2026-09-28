@@ -73,6 +73,11 @@ export const PRODUCTS: Product[] = [
     description: "Track products across locations, suppliers and orders. Signs in separately for now.",
   },
   {
+    key: "vitrine", name: "Vitrine", category: "Work", color: "#8a7a5c", url: "https://vitrine.axxes.club", sso: true, status: "beta",
+    tagline: "The collection, kept",
+    description: "Private collection archives for serious art collections — provenance, condition and legacy in one quiet desk.",
+  },
+  {
     key: "manifest", name: "Manifest", category: "Commerce", color: "#c8ff3d", url: "https://manifest.axxes.club", sso: true, status: "beta",
     tagline: "Inventory operations",
     description: "Purchasing, fulfilment, transfers and quality, all in one ledger.",
