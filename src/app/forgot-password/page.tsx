@@ -15,7 +15,8 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setPending(true);
     setError(null);
-    const { error } = await authClient.requestPasswordReset({ email, redirectTo: "/reset-password" });
+    // Same folding as sign-in: stored addresses are lowercased.
+    const { error } = await authClient.requestPasswordReset({ email: email.trim().toLowerCase(), redirectTo: "/reset-password" });
     setPending(false);
     if (error) setError(error.message ?? "Something went wrong");
     else setSent(true);

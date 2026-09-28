@@ -16,7 +16,9 @@ export function SignInForm({ next }: { next: string }) {
     e.preventDefault();
     setPending(true);
     setError(null);
-    const { data, error } = await authClient.signIn.email({ email, password });
+    // Addresses are stored lowercased, so a mixed-case entry like
+    // viscasillas@Me.com has to be folded before better-auth looks it up.
+    const { data, error } = await authClient.signIn.email({ email: email.trim().toLowerCase(), password });
     if (error) {
       setError(error.message ?? "Couldn't sign you in");
       setPending(false);
