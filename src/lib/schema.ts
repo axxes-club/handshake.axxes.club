@@ -115,3 +115,30 @@ export const oauthConsent = pgTable("oauth_consent", {
   consentGiven: boolean("consent_given").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * The shared product catalog, owned by the members portal.
+ *
+ * This table is the reason the public product page can never drift from what
+ * the suite actually offers. It used to be a hand-maintained array in
+ * products.ts, which meant every new app needed a code change in two
+ * repositories — and a product added to the suite was invisible here until
+ * somebody remembered. One row, read from one place, is the whole fix.
+ */
+export const axxesProduct = pgTable("axxes_product", {
+  key: text("key").primaryKey(),
+  name: text("name").notNull(),
+  tagline: text("tagline").notNull(),
+  description: text("description").notNull(),
+  url: text("url").notNull(),
+  color: text("color").notNull(),
+  category: text("category").notNull(),
+  status: text("status").notNull().default("beta"),
+  sso: boolean("sso").notNull().default(false),
+  icon: text("icon"),
+  membersPath: text("members_path"),
+  surfaceInMembers: boolean("surface_in_members").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
