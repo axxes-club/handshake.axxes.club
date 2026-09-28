@@ -59,8 +59,11 @@ export const auth = betterAuth({
       trustedClients: oidcClients(),
       // Extra claims a product can read, so RBAC there doesn't need a
       // second round trip back here.
+      // Guarded on purpose. A throw here fails the whole /userinfo response,
+      // which looks to the client exactly like "sign-in is broken" rather than
+      // "a decorative claim failed" — so this must never be able to throw.
       getAdditionalUserInfoClaim: async (user) => ({
-        axxes_role: user.isSuperadmin ? "superadmin" : "member",
+        axxes_role: user?.isSuperadmin ? "superadmin" : "member",
       }),
     }),
   ],
