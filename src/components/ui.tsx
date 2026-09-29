@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { CATEGORIES, PRODUCTS, type Product } from "@/lib/products";
+import { CATEGORIES, FALLBACK_PRODUCTS, type Product } from "@/lib/products";
 
 export function cx(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -36,11 +36,20 @@ function Status({ product }: { product: Product }) {
 }
 
 // The whole product family, grouped by category
-export function ProductGrid({ compact = false }: { compact?: boolean }) {
+/**
+ * The product grid.
+ *
+ * `products` is passed in rather than read from a module-level array, so the
+ * page — a server component — can supply the live catalog from `axxes_product`.
+ * The default is the fallback list, which keeps this usable from a client
+ * component and means a call site that forgets to pass products still renders
+ * the products we know about instead of nothing.
+ */
+export function ProductGrid({ compact = false, products = FALLBACK_PRODUCTS }: { compact?: boolean; products?: Product[] }) {
   return (
     <div className="space-y-10">
       {CATEGORIES.map((cat) => {
-        const items = PRODUCTS.filter((p) => p.category === cat.key);
+        const items = products.filter((p) => p.category === cat.key);
         if (!items.length) return null;
         return (
           <section key={cat.key} aria-labelledby={`cat-${cat.key}`}>
@@ -85,13 +94,14 @@ export function ProductGrid({ compact = false }: { compact?: boolean }) {
   );
 }
 
-export function AuthShell({ title, subtitle, children, footer }: {
+export function AuthShell({ title, subtitle, children, footer, products = FALLBACK_PRODUCTS }: {
   title: string;
   subtitle?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  products?: Product[];
 }) {
-  const sso = PRODUCTS.filter((p) => p.sso || p.status === "live");
+  const sso = products.filter((p) => p.sso || p.status === "live");
   return (
     <main className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
       <div className="flex flex-col px-6 py-8 sm:px-12">

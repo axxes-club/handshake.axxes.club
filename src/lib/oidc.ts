@@ -57,9 +57,17 @@ const QORTR_REDIRECTS = [
   "http://localhost:3000/api/auth/axxes/callback",
 ];
 
+/** Vitrine — the collection administrator's desk. */
+const VITRINE_REDIRECTS = [
+  // better-auth's generic OAuth rides the standard social callback path.
+  "https://vitrine.axxes.club/api/auth/callback/axxes",
+  "http://localhost:3000/api/auth/callback/axxes",
+];
+
 export function oidcClients(): OidcClient[] {
   const clients = [
     client("qortr", "Qortr", QORTR_REDIRECTS, "QORTR_OIDC_CLIENT_SECRET"),
+    client("vitrine", "Vitrine", VITRINE_REDIRECTS, "VITRINE_OIDC_CLIENT_SECRET"),
   ].filter((c): c is OidcClient => c !== null);
   return clients;
 }

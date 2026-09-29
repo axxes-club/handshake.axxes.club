@@ -11,7 +11,31 @@ import { ALLOWED_SCOPES, oidcClients } from "./oidc";
 const cookieDomain = process.env.AUTH_COOKIE_DOMAIN;
 const parent = (cookieDomain || "axxes.club").replace(/^\./, "");
 const allowHttp = process.env.NODE_ENV !== "production" || process.env.ALLOW_HTTP_REDIRECTS === "true";
-const trustedOrigins = [`https://${parent}`, `https://*.${parent}`, ...(allowHttp ? [`http://*.${parent}:*`] : [])];
+
+/**
+ * Origins to trust in addition to the real domains.
+ *
+ * Running the suite on one machine means the suite app redirects here, comes
+ * back to `http://localhost:3111`, and Better Auth checks that origin against
+ * this list. `https://*.axxes.club` does not match a port on localhost, so
+ * without this the sign-in is rejected at the last step — after the password
+ * was accepted — and the symptom is a bounce back to /sign-in with nothing in
+ * the logs to explain it.
+ *
+ * Empty unless EXTRA_TRUSTED_ORIGINS is set, so production trusts exactly the
+ * real domains and nothing else.
+ */
+const extraOrigins = (process.env.EXTRA_TRUSTED_ORIGINS ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const trustedOrigins = [
+  `https://${parent}`,
+  `https://*.${parent}`,
+  ...(allowHttp ? [`http://*.${parent}:*`] : []),
+  ...extraOrigins,
+];
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
@@ -59,8 +83,11 @@ export const auth = betterAuth({
       trustedClients: oidcClients(),
       // Extra claims a product can read, so RBAC there doesn't need a
       // second round trip back here.
+      // Guarded on purpose. A throw here fails the whole /userinfo response,
+      // which looks to the client exactly like "sign-in is broken" rather than
+      // "a decorative claim failed" — so this must never be able to throw.
       getAdditionalUserInfoClaim: async (user) => ({
-        axxes_role: user.isSuperadmin ? "superadmin" : "member",
+        axxes_role: user?.isSuperadmin ? "superadmin" : "member",
       }),
     }),
   ],
