@@ -59,9 +59,9 @@ const QORTR_REDIRECTS = [
 
 /** Vitrine — the collection administrator's desk. */
 const VITRINE_REDIRECTS = [
-  "https://vitrine.axxes.club/api/auth/axxes/callback",
-  // Local development, so the flow can be exercised before it ships.
-  "http://localhost:3000/api/auth/axxes/callback",
+  // better-auth's generic OAuth rides the standard social callback path.
+  "https://vitrine.axxes.club/api/auth/callback/axxes",
+  "http://localhost:3000/api/auth/callback/axxes",
 ];
 
 export function oidcClients(): OidcClient[] {

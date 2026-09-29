@@ -14,10 +14,10 @@ export type Product = {
 export type Category = "Suite" | "Work" | "Events" | "Commerce" | "Developers";
 
 export const CATEGORIES: { key: Category; blurb: string }[] = [
-  { key: "Suite", blurb: "Everything together, in one workspace." },
+  { key: "Suite", blurb: "One workspace, one set of numbers." },
   { key: "Work", blurb: "Plan, organize and run the business." },
-  { key: "Events", blurb: "Everything around a night out." },
-  { key: "Commerce", blurb: "Get paid and keep stock moving." },
+  { key: "Events", blurb: "The night itself: what was sold, who came, and what they did." },
+  { key: "Commerce", blurb: "The money and the stock, reconciled against each other." },
   { key: "Developers", blurb: "Build on AXXES." },
 ];
 
@@ -32,8 +32,8 @@ export const CATEGORIES: { key: Category; blurb: string }[] = [
 export const FALLBACK_PRODUCTS: Product[] = [
   {
     key: "suite", name: "AXXES Suite", category: "Suite", color: "#ededef", url: "https://members.axxes.club", sso: true,
-    tagline: "Your whole business in one place",
-    description: "CRM, events, orders, website builder, newsletters, messaging and every AXXES app, integrated in one workspace.",
+    tagline: "Everything reconciles here",
+    description: "One workspace for the whole business: CRM, events, orders, messages and every AXXES app, all reading from the same numbers.",
   },
   {
     key: "lanes", name: "Lanes", category: "Work", color: "#60a5fa", url: "https://lanes.axxes.club", sso: true, status: "beta",
@@ -57,28 +57,28 @@ export const FALLBACK_PRODUCTS: Product[] = [
   },
   {
     key: "afters", name: "afters.am", category: "Events", color: "#f472b6", url: "https://afters.am", status: "live",
-    tagline: "Events, tickets and afters",
-    description: "Discover nights out, sell tickets, run guest lists and door scanning.",
+    tagline: "Sell the night, run the door",
+    description: "Events, tickets, guest lists and scanning. The door count has to match the sales count, and here it does.",
   },
   {
     key: "vibez", name: "Vibez", category: "Events", color: "#ff4d8d", url: "https://vibez.axxes.club", sso: true, status: "beta",
     tagline: "Every room is a photobooth",
-    description: "QR codes around the venue open a night-flash camera; every photo lands on a live feed and TV wall.",
+    description: "QR codes around the venue open a night-flash camera; every photo lands on a live feed and a TV wall, tagged to the right event.",
   },
   {
-    key: "qortr", name: "Qortr", category: "Events", color: "#22d3ee", url: "https://qortr.axxes.club", status: "soon",
-    tagline: "Room and space booking",
-    description: "Book rooms, desks and venues with interactive floor maps and flexible pricing.",
+    key: "qortr", name: "Rooms", category: "Events", color: "#22d3ee", url: "https://qortr.axxes.club", status: "beta",
+    tagline: "The room, booked and paid",
+    description: "Book rooms and venues with interactive floor maps and flexible pricing, so the calendar and the till agree.",
   },
   {
     key: "tollbooth", name: "Tollbooth", category: "Commerce", color: "#a78bfa", url: "https://tollbooth.axxes.club", sso: true, status: "beta",
-    tagline: "Payments, powered by Stripe",
-    description: "Hosted checkout, payouts to your bank and one API for every app you run.",
+    tagline: "Paid, and paid out",
+    description: "Hosted checkout, payouts to your bank, and one reconciliation of what was charged against what actually landed.",
   },
   {
     key: "krates", name: "Krates", category: "Commerce", color: "#f59e0b", url: "https://kr8s.axxes.club", status: "live",
-    tagline: "Inventory and stock",
-    description: "Track products across locations, suppliers and orders. Signs in separately for now.",
+    tagline: "The straightforward stock list",
+    description: "The plain track: products, variants and stock levels across locations. Signs in separately for now.",
   },
   {
     key: "vitrine", name: "Vitrine", category: "Work", color: "#8a7a5c", url: "https://vitrine.axxes.club", sso: true, status: "beta",
@@ -86,14 +86,14 @@ export const FALLBACK_PRODUCTS: Product[] = [
     description: "Private collection archives for serious art collections — provenance, condition and legacy in one quiet desk.",
   },
   {
-    key: "manifest", name: "Manifest", category: "Commerce", color: "#c8ff3d", url: "https://manifest.axxes.club", sso: true, status: "beta",
-    tagline: "Inventory operations",
-    description: "Purchasing, fulfilment, transfers and quality, all in one ledger.",
+    key: "manifest", name: "Stock", category: "Commerce", color: "#c8ff3d", url: "https://manifest.axxes.club", sso: true, status: "beta",
+    tagline: "Every number explains itself",
+    description: "Purchasing, fulfilment, transfers and quality on one honest ledger. Immovable stock moves, mistakes reversed rather than edited, and a cost layer that can be read line by line.",
   },
   {
-    key: "api", name: "AXXES API", category: "Developers", color: "#94a3b8", url: "https://api.axxes.club", status: "live",
-    tagline: "The ticketing API",
-    description: "API-first event ticketing: events, ticket types, orders and check-ins for your own apps.",
+    key: "api", name: "AXXES for Builders", category: "Developers", color: "#94a3b8", url: "https://api.axxes.club", status: "live",
+    tagline: "Put your event on AXXES",
+    description: "Events, ticket types, orders and check-ins as an API, plus webhooks. Built for teams shipping their own product on top of ours.",
   },
 ];
 /**
