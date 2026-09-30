@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { tenantMemberships, tenants, user as userTable } from "@/lib/schema";
 import Link from "next/link";
 import { Brand, ProductGrid } from "@/components/ui";
+import { getProducts } from "@/lib/products";
 import { AccountSettings } from "./account-settings";
 
 export default async function AccountHome() {
@@ -13,7 +14,7 @@ export default async function AccountHome() {
   const session = await auth.api.getSession({ headers: h });
   if (!session) redirect("/sign-in");
 
-  const [sessions, workspaces, [profile]] = await Promise.all([
+  const [sessions, workspaces, [profile], products] = await Promise.all([
     auth.api.listSessions({ headers: h }),
     db
       .select({ name: tenants.name, role: tenantMemberships.role })
@@ -22,6 +23,7 @@ export default async function AccountHome() {
       .where(and(eq(tenantMemberships.userId, session.user.id), isNull(tenantMemberships.deletedAt), isNull(tenants.deletedAt)))
       .orderBy(asc(tenants.name)),
     db.select({ isSuperadmin: userTable.isSuperadmin }).from(userTable).where(eq(userTable.id, session.user.id)),
+    getProducts(),
   ]);
 
   const firstName = session.user.name.split(" ")[0] || session.user.name;
@@ -58,7 +60,7 @@ export default async function AccountHome() {
               <p className="text-sm text-muted">Signed in once — open any of them.</p>
             </div>
           </div>
-          <ProductGrid compact />
+          <ProductGrid compact products={products} />
         </section>
 
         <section aria-labelledby="ws-heading" className="mt-16">

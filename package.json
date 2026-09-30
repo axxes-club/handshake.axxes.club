@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:catalog": "node scripts/check-handshake.mjs",
+    "check:sso": "node scripts/check-sso.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
