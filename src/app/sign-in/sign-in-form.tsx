@@ -5,8 +5,17 @@ import type { Product } from "@/lib/products";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Alert, AuthShell, Button, Field, inputClass } from "@/components/ui";
+import type { SignInBrand } from "@/lib/white-label";
+import { BrandedShell } from "./branded-shell";
 
-export function SignInForm({ next, products }: { next: string; products: Product[] }) {
+/** Words for the branded page, which follows the visitor's language. */
+const WORDS = {
+  en: { email: "Email", password: "Password", forgot: "Forgot password?", signIn: "Sign in", signingIn: "Signing in…", failed: "Couldn't sign you in" },
+  es: { email: "Correo electrónico", password: "Contraseña", forgot: "¿Olvidaste tu contraseña?", signIn: "Iniciar sesión", signingIn: "Iniciando sesión…", failed: "No pudimos iniciar tu sesión" },
+};
+
+export function SignInForm({ next, products, brand, locale = "en" }: { next: string; products?: Product[]; brand?: SignInBrand; locale?: "en" | "es" }) {
+  const w = brand ? WORDS[locale] : WORDS.en;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -21,13 +30,33 @@ export function SignInForm({ next, products }: { next: string; products: Product
     // viscasillas@Me.com has to be folded before better-auth looks it up.
     const { data, error } = await authClient.signIn.email({ email: email.trim().toLowerCase(), password });
     if (error) {
-      setError(error.message ?? "Couldn't sign you in");
+      setError(error.message ?? w.failed);
       setPending(false);
       return;
     }
     // Mid-OIDC sign-in: Handshake answers with the product's callback URL
     window.location.assign(data?.redirect && data.url ? data.url : next);
   };
+
+  const form = (
+    <form onSubmit={submit} className="grid gap-4">
+      <Field label={w.email}>
+        <input type="email" required autoFocus autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+      </Field>
+      <Field label={w.password}>
+        <input type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} />
+      </Field>
+      {error && <Alert>{error}</Alert>}
+      <div className="mt-2 flex items-center justify-between">
+        <Link href={`/forgot-password${query}`} className="text-sm text-muted hover:text-text">
+          {w.forgot}
+        </Link>
+        <Button type="submit" disabled={pending}>{pending ? w.signingIn : w.signIn}</Button>
+      </div>
+    </form>
+  );
+
+  if (brand) return <BrandedShell brand={brand}>{form}</BrandedShell>;
 
   return (
     <AuthShell
@@ -36,21 +65,7 @@ export function SignInForm({ next, products }: { next: string; products: Product
       subtitle="Use your AXXES account to continue."
       footer={<>New to AXXES? <Link href={`/sign-up${query}`} className="font-medium text-accent hover:underline">Create an account</Link></>}
     >
-      <form onSubmit={submit} className="grid gap-4">
-        <Field label="Email">
-          <input type="email" required autoFocus autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
-        </Field>
-        <Field label="Password">
-          <input type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} />
-        </Field>
-        {error && <Alert>{error}</Alert>}
-        <div className="mt-2 flex items-center justify-between">
-          <Link href={`/forgot-password${query}`} className="text-sm text-muted hover:text-text">
-            Forgot password?
-          </Link>
-          <Button type="submit" disabled={pending}>{pending ? "Signing in…" : "Sign in"}</Button>
-        </div>
-      </form>
+      {form}
     </AuthShell>
   );
 }
