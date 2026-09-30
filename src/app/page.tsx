@@ -7,6 +7,7 @@ import { tenantMemberships, tenants, user as userTable } from "@/lib/schema";
 import Link from "next/link";
 import { Brand, ProductGrid } from "@/components/ui";
 import { AccountSettings } from "./account-settings";
+import { AllAppsSwitcher } from "@/components/all-apps-switcher";
 
 export default async function AccountHome() {
   const h = await headers();
@@ -31,7 +32,7 @@ export default async function AccountHome() {
       <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Brand />
         <nav className="flex items-center gap-1 text-sm">
-          <Link href="/apps" className="rounded-lg px-3 py-2 text-muted hover:text-text">All products</Link>
+          <AllAppsSwitcher />
           <a href="/sign-out" className="btn-ghost">Sign out</a>
         </nav>
       </header>
