@@ -76,7 +76,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     description: "Hosted checkout, payouts to your bank, and one reconciliation of what was charged against what actually landed.",
   },
   {
-    key: "krates", name: "Krates", category: "Commerce", color: "#f59e0b", url: "https://kr8s.axxes.club", status: "live",
+    key: "krates", name: "Krates", category: "Commerce", color: "#f59e0b", url: "https://kr8s.axxes.club", sso: true, status: "live",
     tagline: "The straightforward stock list",
     description: "The plain track: products, variants and stock levels across locations. Signs in separately for now.",
   },

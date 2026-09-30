@@ -64,10 +64,23 @@ const VITRINE_REDIRECTS = [
   "http://localhost:3000/api/auth/callback/axxes",
 ];
 
+/**
+ * afters — the nightlife product on its own domains. It keeps Clerk for its
+ * existing accounts and adds "Continue with AXXES"; the callback route is
+ * afters' /api/auth/axxes/callback on each host it answers on.
+ */
+const AFTERS_REDIRECTS = [
+  ...["afters.am", "www.afters.am", "afters.xxx", "www.afters.xxx"].map(
+    (host) => `https://${host}/api/auth/axxes/callback`
+  ),
+  "http://localhost:3000/api/auth/axxes/callback",
+];
+
 export function oidcClients(): OidcClient[] {
   const clients = [
     client("qortr", "Qortr", QORTR_REDIRECTS, "QORTR_OIDC_CLIENT_SECRET"),
     client("vitrine", "Vitrine", VITRINE_REDIRECTS, "VITRINE_OIDC_CLIENT_SECRET"),
+    client("afters", "afters", AFTERS_REDIRECTS, "AFTERS_OIDC_CLIENT_SECRET"),
   ].filter((c): c is OidcClient => c !== null);
   return clients;
 }
