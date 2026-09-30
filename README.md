@@ -29,3 +29,10 @@ Production deploys must build against the real Vercel environment. Do not use pu
 The account hub adds workspace views, profile and security management, connections, and a scoped metadata export. Per-app summary adapters and authenticated browser integration verification are still pending; unavailable app summaries do not indicate empty data. The export is a partial overview, not a complete download of all records.
 
 Automatic Vercel deployments from `main` are disabled in `vercel.json` while this work is checked in without deployment. Re-enable `git.deploymentEnabled.main` when deployment is explicitly requested.
+## AXXES Work OIDC
+
+Set `OFFICE_OIDC_CLIENT_SECRET` to the same provisioned value as Office's
+`AXXES_OIDC_CLIENT_SECRET`; Office uses client ID `office`. Exact callbacks are
+`https://axxes.work/api/auth/axxes/callback` and
+`http://localhost:3111/api/auth/axxes/callback`. Work uses a host-local session,
+not the axxes.club cookie. Client registration is inactive until the secret is set.
