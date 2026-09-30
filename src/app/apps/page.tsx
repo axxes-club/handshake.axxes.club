@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Brand, ProductGrid } from "@/components/ui";
-import { getProducts } from "@/lib/products";
+import { getProducts } from "@/lib/products-server";
 import { getSession } from "@/lib/session";
 import { AllAppsSwitcher } from "@/components/all-apps-switcher";
 
