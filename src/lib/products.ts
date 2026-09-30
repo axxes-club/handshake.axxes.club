@@ -29,7 +29,7 @@ export const CATEGORIES: { key: Category; blurb: string }[] = [
  * an outage that degrades to "slightly out of date" beats one that degrades to
  * "AXXES sells nothing".
  */
-export const FALLBACK_PRODUCTS: Product[] = [
+const BASE_PRODUCTS: Product[] = [
   {
     key: "suite", name: "AXXES Suite", category: "Suite", color: "#ededef", url: "https://members.axxes.club", sso: true,
     tagline: "Everything reconciles here",
@@ -96,63 +96,13 @@ export const FALLBACK_PRODUCTS: Product[] = [
     description: "Events, ticket types, orders and check-ins as an API, plus webhooks. Built for teams shipping their own product on top of ours.",
   },
 ];
-/**
- * The live catalog.
- *
- * Read from `axxes_product` — the same table the members portal launcher and
- * developer.axxes.club's plan catalog read — so "what AXXES offers" has one
- * answer. Before this, a new app had to be added to a hardcoded array in this
- * repository *and* to the portal's SQL seed, and a product that reached the
- * suite quietly stayed invisible on the public page until a human noticed.
- *
- * That is the failure this removes: two lists, and no one responsible for the
- * difference between them.
- *
- * `surface_in_members` is deliberately NOT filtered here. That column answers
- * "should the suite sell this?", which is a different question from "does AXXES
- * offer this?". Hiding a product from the public page because a sales decision
- * moved would make this page wrong rather than tidy.
- */
-export async function getProducts(): Promise<Product[]> {
-  try {
-    const { db } = await import("./db");
-    const { axxesProduct } = await import("./schema");
-    const { asc } = await import("drizzle-orm");
 
-    const rows = await db
-      .select()
-      .from(axxesProduct)
-      .orderBy(asc(axxesProduct.sortOrder));
-
-    if (!rows.length) return FALLBACK_PRODUCTS;
-
-    return rows.map((r) => ({
-      key: r.key,
-      name: r.name,
-      tagline: r.tagline,
-      description: r.description,
-      url: r.url,
-      color: r.color,
-      // A category added to the portal must not blank the page here, so an
-      // unknown one falls back to Suite rather than rendering as a group with
-      // no heading.
-      category: (CATEGORIES.find((c) => c.key === r.category)?.key ??
-        "Suite") as Category,
-      status: (r.status === "live" || r.status === "beta"
-        ? r.status
-        : "soon") as Product["status"],
-      sso: r.sso,
-    }));
-  } catch (err) {
-    // Never take the public product page down over a query. Log it so it is
-    // visible, and show the last-known-good list.
-    console.error("[products] falling back to the hardcoded catalog:", err);
-    return FALLBACK_PRODUCTS;
-  }
-}
-
-/** Categories, ordered, with only the ones that actually have products in them. */
-export async function getCategories(products: Product[]) {
-  const used = new Set(products.map((p) => p.category));
-  return CATEGORIES.filter((c) => used.has(c.key));
-}
+// v2 is isolated: only products deployed into its domain may be launched.
+export const FALLBACK_PRODUCTS: Product[] = BASE_PRODUCTS.map((product) => {
+  if (process.env.NEXT_PUBLIC_AXXES_ENV !== "v2") return product;
+  const host = new URL(product.url).hostname;
+  const supported = new Set(["members", "lanes", "folders", "nexus", "pulse", "vibez", "tollbooth", "vitrine", "manifest"]);
+  const app = host.endsWith(".axxes.club") ? host.slice(0, -".axxes.club".length) : "";
+  if (supported.has(app)) return { ...product, url: `https://${app}.v2.axxes.app` };
+  return { ...product, status: "soon", sso: false };
+});
