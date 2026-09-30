@@ -36,7 +36,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     description: "One workspace for the whole business: CRM, events, orders, messages and every AXXES app, all reading from the same numbers.",
   },
   {
-    key: "lanes", name: "Lanes", category: "Work", color: "#60a5fa", url: "https://lanes.axxes.club", sso: true, status: "beta",
+    key: "lanes", name: "Lanes", category: "Work", color: "#60a5fa", url: "https://lanes.axxes.club", sso: true,
     tagline: "Boards for every team",
     description: "Kanban boards, sprints and pipelines with checklists, assignees, due dates and Jira-style keys.",
   },
