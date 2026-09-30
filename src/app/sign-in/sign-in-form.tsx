@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import type { Product } from "@/lib/products";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Alert, AuthShell, Button, Field, inputClass } from "@/components/ui";
 
-export function SignInForm({ next }: { next: string }) {
+export function SignInForm({ next, products }: { next: string; products: Product[] }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +31,7 @@ export function SignInForm({ next }: { next: string }) {
 
   return (
     <AuthShell
+      products={products}
       title="Sign in"
       subtitle="Use your AXXES account to continue."
       footer={<>New to AXXES? <Link href={`/sign-up${query}`} className="font-medium text-accent hover:underline">Create an account</Link></>}
