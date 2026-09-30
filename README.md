@@ -23,3 +23,9 @@ Central sign-in for every AXXES product (handshake.axxes.club).
 - `npm run check:sso` checks the shared session against each AXXES app. It uses `DATABASE_URL` and `BETTER_AUTH_SECRET` from `.env.local`, creates a temporary verification account and five-minute session, then removes both in `finally`. Use an environment that matches the deployed apps. It never prints credentials or session tokens.
 
 Production deploys must build against the real Vercel environment. Do not use pulled `[SENSITIVE]` placeholders as configuration values. Relay consumes `BETTER_AUTH_BASE_URL` (rather than `BETTER_AUTH_URL`) and must share Handshake's `BETTER_AUTH_SECRET` and `AUTH_COOKIE_DOMAIN=axxes.club`.
+
+## Account hub work in progress
+
+The account hub adds workspace views, profile and security management, connections, and a scoped metadata export. Per-app summary adapters and authenticated browser integration verification are still pending; unavailable app summaries do not indicate empty data. The export is a partial overview, not a complete download of all records.
+
+Automatic Vercel deployments from `main` are disabled in `vercel.json` while this work is checked in without deployment. Re-enable `git.deploymentEnabled.main` when deployment is explicitly requested.

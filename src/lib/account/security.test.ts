@@ -1,0 +1,2 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {revocableSession} from './security';
+test('refuses foreign and current session IDs',()=>{const sessions=[{id:'mine',token:'sensitive'},{id:'other-device',token:'revocable'}];assert.equal(revocableSession(sessions,'foreign','mine'),null);assert.equal(revocableSession(sessions,'mine','mine'),null);assert.equal(revocableSession(sessions,'other-device','mine')?.token,'revocable')});

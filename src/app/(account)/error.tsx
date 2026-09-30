@@ -1,0 +1,2 @@
+"use client";
+export default function AccountError({reset}:{reset:()=>void}){return <div className="card p-8"><h1 className="text-2xl font-semibold">Your account could not load</h1><p className="mt-3 text-sm text-muted">Try again in a moment. Your data is still available in the owning apps.</p><button onClick={reset} className="btn-primary mt-5">Try again</button><a href="/apps" className="btn-ghost ml-3 mt-5">Open an app</a></div>}
