@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { CATEGORIES, FALLBACK_PRODUCTS, type Product } from "@/lib/products";
+import { CATEGORIES, FALLBACK_PRODUCTS, type Product } from "@/lib/products-catalog";
 
 export function cx(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
