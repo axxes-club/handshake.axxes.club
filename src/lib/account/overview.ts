@@ -1,4 +1,4 @@
-import { getProducts } from "../products";
+import { getProducts } from "../products-server";
 import { loadAccountMetadata } from "./store";
 import { resolveAccountScope } from "./scope";
 import { getIntegration } from "./registry";

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getProducts } from "@/lib/products";
+import { getProducts } from "@/lib/products-server";
 import { getSession } from "@/lib/session";
 import { safeRedirect } from "@/lib/redirect";
 import { SignUpForm } from "./sign-up-form";
