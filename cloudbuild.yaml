@@ -30,6 +30,18 @@
       ]
     },
     {
+      "id": "office-domain-tests",
+      "name": "gcr.io/cloud-builders/docker",
+      "args": [
+        "run",
+        "--rm",
+        "ci-check:$BUILD_ID",
+        "sh",
+        "-ec",
+        "rm -f .env .env.*; npm test && npx tsc --noEmit"
+      ]
+    },
+    {
       "id": "runtime-image",
       "name": "gcr.io/cloud-builders/docker",
       "args": [
