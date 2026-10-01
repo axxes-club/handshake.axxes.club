@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {validateSummary} from './summary-contract';
+const scope={kind:'workspace' as const,id:'00000000-0000-4000-8000-000000000001'};
+const expected={productKey:'manifest',scope,allowedOrigins:['https://manifest.axxes.club']};
+const valid={version:1,productKey:'manifest',scope,observedAt:'2026-09-30T00:00:00.000Z',status:'ready',metrics:[{label:'Products',value:3,unit:'products'}],recent:[{id:'1',title:'Example',type:'product',updatedAt:'2026-09-30T00:00:00.000Z',url:'https://manifest.axxes.club/catalog'}],entryUrl:'https://manifest.axxes.club/',actions:[],workspaceEntry:'choose-in-app'};
+test('rejects foreign scope and product',()=>{assert.equal(validateSummary({...valid,scope:{kind:'personal'}},expected),null);assert.equal(validateSummary({...valid,productKey:'relay'},expected),null)});
+test('rejects unsafe URLs and metrics',()=>{for(const url of ['https://evil.example/','javascript:alert(1)','https://user:pass@manifest.axxes.club/'])assert.equal(validateSummary({...valid,entryUrl:url},expected),null);for(const value of [-1,NaN,Infinity])assert.equal(validateSummary({...valid,metrics:[{label:'Products',value,unit:'products'}]},expected),null)});
+test('denied summaries cannot disclose titles',()=>{assert.equal(validateSummary({...valid,status:'denied'},expected),null)});
+test('bounds records and validates timestamps',()=>{assert.equal(validateSummary({...valid,recent:Array(6).fill(valid.recent[0])},expected),null);assert.equal(validateSummary({...valid,observedAt:'yesterday'},expected),null)});
+test('projects safe data and preserves successful zero',()=>{const result=validateSummary({...valid,status:'empty',metrics:[{label:'Products',value:0,unit:'products'}],recent:[],accessToken:'secret'},expected);assert.equal(result?.metrics[0].value,0);assert.ok(!JSON.stringify(result).includes('secret'))});

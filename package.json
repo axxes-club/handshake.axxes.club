@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "check:catalog": "node scripts/check-handshake.mjs",
-    "check:sso": "node scripts/check-sso.mjs"
+    "check:sso": "node scripts/check-sso.mjs",
+    "test:unit": "tsx --test src/lib/account/*.test.ts",
+    "test": "npm run test:unit"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -22,6 +24,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.2",
@@ -31,6 +34,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

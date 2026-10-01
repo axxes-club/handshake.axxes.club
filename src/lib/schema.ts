@@ -70,6 +70,8 @@ export const tenantMemberships = pgTable("tenant_memberships", {
   tenantId: uuid("tenant_id").notNull(),
   userId: text("user_id").notNull(),
   role: text("role").notNull(),
+  isPrimary: boolean("is_primary").notNull().default(false),
+  joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
 });
 
