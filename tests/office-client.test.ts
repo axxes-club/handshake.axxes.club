@@ -15,3 +15,9 @@ test('Office registration binds its exact Work callback and leaves other clients
   assert.equal(oidcClients().some(c=>c.clientId==='office'),false)
  }finally{keys.forEach((k,i)=>{if(saved[i]===undefined)delete process.env[k];else process.env[k]=saved[i]})}
 })
+
+test('Handshake signs Office identity tokens with the advertised issuer and role',async()=>{
+ const {identityClaims}=await import('../src/lib/oidc')
+ assert.deepEqual(identityClaims('https://handshake.axxes.club',{isSuperadmin:false}),{iss:'https://handshake.axxes.club',axxes_role:'member'})
+ assert.equal(identityClaims('https://handshake.axxes.club',{isSuperadmin:true}).axxes_role,'superadmin')
+})

@@ -88,3 +88,8 @@ export function oidcClients(): OidcClient[] {
 
 /** Is this client allowed to ask for these scopes? */
 export const ALLOWED_SCOPES = ["openid", "email", "profile"];
+
+/** The HS256 provider uses these claims verbatim, including OIDC's required issuer. */
+export function identityClaims(issuer: string, user: { isSuperadmin?: boolean }) {
+  return { iss: issuer, axxes_role: user?.isSuperadmin ? "superadmin" : "member" }
+}

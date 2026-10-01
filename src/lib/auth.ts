@@ -5,7 +5,7 @@ import { db } from "./db";
 import * as schema from "./schema";
 import { sendPasswordResetEmail } from "./email";
 import { oidcProvider } from "better-auth/plugins";
-import { ALLOWED_SCOPES, oidcClients } from "./oidc";
+import { ALLOWED_SCOPES, oidcClients, identityClaims } from "./oidc";
 
 // Set in production so every *.axxes.club app shares one signed-in session
 const cookieDomain = process.env.AUTH_COOKIE_DOMAIN;
@@ -86,9 +86,7 @@ export const auth = betterAuth({
       // Guarded on purpose. A throw here fails the whole /userinfo response,
       // which looks to the client exactly like "sign-in is broken" rather than
       // "a decorative claim failed" — so this must never be able to throw.
-      getAdditionalUserInfoClaim: async (user) => ({
-        axxes_role: user?.isSuperadmin ? "superadmin" : "member",
-      }),
+      getAdditionalUserInfoClaim: async (user) => identityClaims(process.env.BETTER_AUTH_URL!, user),
     }),
   ],
 });
