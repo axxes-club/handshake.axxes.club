@@ -45,13 +45,20 @@ def release(service,image,build_id):
             conditions=current['status'].get('conditions',[])
             if not any(c.get('type')=='Ready' and c.get('status')=='True' for c in conditions):
                 raise RuntimeError('Restricted-ingress revision is not Ready')
-            if not os.environ.get('CI_PUBLIC_HEALTH_URL'):
+            if not os.environ.get('CI_PUBLIC_HEALTH_URL') and os.environ.get('CI_READY_ONLY')!='true':
                 raise RuntimeError('Restricted ingress requires a public load-balancer health URL')
-        if traffic(current)!=previous:raise RuntimeError('Traffic changed while the release was staged')
+        guard=gcloud('run','services','describe',service,'--region='+region)
+        if traffic(guard)!=previous or guard['status']['latestReadyRevisionName']!=revision:
+            raise RuntimeError('Production changed while the release was staged')
         # Image-only deploy preserves env, secrets, networking, CPU, memory, concurrency and IAM.
         gcloud('run','services','update-traffic',service,'--region='+region,'--to-revisions='+revision+'=100')
         promoted=True
-        probe(os.environ.get('CI_PUBLIC_HEALTH_URL') or before['status']['url']+os.environ.get('CI_HEALTH_PATH','/'))
+        if os.environ.get('CI_READY_ONLY')=='true':
+            health=gcloud('run','services','describe',service,'--region='+region)
+            if not any(c.get('type')=='Ready' and c.get('status')=='True' for c in health['status'].get('conditions',[])):
+                raise RuntimeError('Internal service is not Ready after promotion')
+        else:
+            probe(os.environ.get('CI_PUBLIC_HEALTH_URL') or before['status']['url']+os.environ.get('CI_HEALTH_PATH','/'))
         print('Release healthy:',service,revision)
     except Exception:
         if promoted:

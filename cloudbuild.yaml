@@ -30,7 +30,7 @@
       "args": [
         "build",
         "-t",
-        "us-west1-docker.pkg.dev/$PROJECT_ID/ci-handshake/handshake:${_TAG}",
+        "us-west1-docker.pkg.dev/$PROJECT_ID/ci-handshake/handshake:${_TAG}-$BUILD_ID",
         "."
       ]
     },
@@ -39,7 +39,7 @@
       "name": "gcr.io/cloud-builders/docker",
       "args": [
         "push",
-        "us-west1-docker.pkg.dev/$PROJECT_ID/ci-handshake/handshake:${_TAG}"
+        "us-west1-docker.pkg.dev/$PROJECT_ID/ci-handshake/handshake:${_TAG}-$BUILD_ID"
       ]
     },
     {
@@ -48,12 +48,12 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "set -euo pipefail\nimage='us-west1-docker.pkg.dev/$PROJECT_ID/ci-handshake/handshake:${_TAG}'\ndigest=$(gcloud artifacts docker images describe \"$$image\" --format='value(image_summary.digest)')\nexport CI_SERVICE='handshake' CI_BUILD_ID='$BUILD_ID' CI_IMAGE=\"$${image%:*}@$$digest\"\npython3 scripts/gcp-release.py\n"
+        "set -euo pipefail\nimage='us-west1-docker.pkg.dev/$PROJECT_ID/ci-handshake/handshake:${_TAG}-$BUILD_ID'\ndigest=$(gcloud artifacts docker images describe \"$$image\" --format='value(image_summary.digest)')\nexport CI_SERVICE='handshake' CI_BUILD_ID='$BUILD_ID' CI_IMAGE=\"$${image%:*}@$$digest\"\npython3 scripts/gcp-release.py\n"
       ]
     }
   ],
   "images": [
-    "us-west1-docker.pkg.dev/$PROJECT_ID/ci-handshake/handshake:${_TAG}"
+    "us-west1-docker.pkg.dev/$PROJECT_ID/ci-handshake/handshake:${_TAG}-$BUILD_ID"
   ],
   "options": {
     "machineType": "E2_HIGHCPU_8",
