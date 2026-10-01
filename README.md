@@ -16,3 +16,18 @@ Central sign-in for every AXXES product (handshake.axxes.club).
 | `BETTER_AUTH_URL` | `https://handshake.axxes.club` |
 | `AUTH_COOKIE_DOMAIN` | `axxes.club` |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `FROM_EMAIL` | Password reset emails |
+
+## Production checks
+
+- `npm run check:catalog` checks that sign-in and sign-up show the newer apps and Manifest, and that the product directory includes Support. Pass a base URL to `node scripts/check-handshake.mjs <url>` to check another deployment.
+- `npm run check:sso` checks the shared session against each AXXES app. It uses `DATABASE_URL` and `BETTER_AUTH_SECRET` from `.env.local`, creates a temporary verification account and five-minute session, then removes both in `finally`. Use an environment that matches the deployed apps. It never prints credentials or session tokens.
+
+Production deploys must build against the real Vercel environment. Do not use pulled `[SENSITIVE]` placeholders as configuration values. Relay consumes `BETTER_AUTH_BASE_URL` (rather than `BETTER_AUTH_URL`) and must share Handshake's `BETTER_AUTH_SECRET` and `AUTH_COOKIE_DOMAIN=axxes.club`.
+
+## AXXES Work OIDC
+
+Set `OFFICE_OIDC_CLIENT_SECRET` to the same provisioned value as Office's
+`AXXES_OIDC_CLIENT_SECRET`; Office uses client ID `office`. Exact callbacks are
+`https://axxes.work/api/auth/axxes/callback` and
+`http://localhost:3111/api/auth/axxes/callback`. Work uses a host-local session,
+not the axxes.club cookie. Client registration is inactive until the secret is set.

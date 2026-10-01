@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { Product } from "@/lib/products";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Alert, AuthShell, Button, Field, inputClass } from "@/components/ui";
@@ -13,7 +14,8 @@ const WORDS = {
   es: { email: "Correo electrónico", password: "Contraseña", forgot: "¿Olvidaste tu contraseña?", signIn: "Iniciar sesión", signingIn: "Iniciando sesión…", failed: "No pudimos iniciar tu sesión" },
 };
 
-export function SignInForm({ next, brand, locale = "en" }: { next: string; brand?: SignInBrand; locale?: "en" | "es" }) {
+// `products` feeds the AXXES sign-in page's catalog; a white-label page (`brand`) shows none.
+export function SignInForm({ next, products = [], brand, locale = "en" }: { next: string; products?: Product[]; brand?: SignInBrand; locale?: "en" | "es" }) {
   const w = brand ? WORDS[locale] : WORDS.en;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,6 +61,7 @@ export function SignInForm({ next, brand, locale = "en" }: { next: string; brand
 
   return (
     <AuthShell
+      products={products}
       title="Sign in"
       subtitle="Use your AXXES account to continue."
       footer={<>New to AXXES? <Link href={`/sign-up${query}`} className="font-medium text-accent hover:underline">Create an account</Link></>}

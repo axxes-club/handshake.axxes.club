@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import type { Product } from "@/lib/products";
 import { useState } from "react";
 import { signUpWithInvite } from "@/app/actions";
 import { Alert, AuthShell, Button, Field, inputClass } from "@/components/ui";
 
-export function SignUpForm({ next, initialCode }: { next: string; initialCode: string }) {
+export function SignUpForm({ next, initialCode, products }: { next: string; initialCode: string; products: Product[] }) {
   const [form, setForm] = useState({ name: "", email: "", password: "", inviteCode: initialCode });
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -26,6 +27,7 @@ export function SignUpForm({ next, initialCode }: { next: string; initialCode: s
 
   return (
     <AuthShell
+      products={products}
       title="Create your AXXES account"
       subtitle="One account for the AXXES Suite, Folders, Krates, Tollbooth and more."
       footer={<>Already have an account? <Link href={`/sign-in?redirect=${encodeURIComponent(next)}`} className="font-medium text-accent hover:underline">Sign in</Link></>}
