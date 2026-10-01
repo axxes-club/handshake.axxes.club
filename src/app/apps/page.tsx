@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Brand, ProductGrid } from "@/components/ui";
-import { getProducts } from "@/lib/products";
+import { getProducts } from "@/lib/products-server";
 import { getSession } from "@/lib/session";
+import { AllAppsSwitcher } from "@/components/all-apps-switcher";
 
 export const metadata: Metadata = { title: "AXXES products", robots: { index: true, follow: true } };
 
@@ -16,7 +17,10 @@ export default async function AppsPage() {
     <div className="min-h-dvh">
       <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Brand />
-        <Link href={session ? "/" : "/sign-in"} className="btn-primary">{session ? "Your account" : "Sign in"}</Link>
+        <nav className="flex items-center gap-2">
+          <AllAppsSwitcher />
+          <Link href={session ? "/" : "/sign-in"} className="btn-primary">{session ? "Your account" : "Sign in"}</Link>
+        </nav>
       </header>
       <main className="mx-auto max-w-6xl px-6 pb-24">
         <section className="py-14">
