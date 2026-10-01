@@ -118,13 +118,6 @@ export const oauthConsent = pgTable("oauth_consent", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-// Additive source-owned schema required only when workspace OIDC is enabled.
-export const jwks = pgTable('jwks', {
-  id: text('id').primaryKey(), publicKey: text('public_key').notNull(),
-  privateKey: text('private_key').notNull(), createdAt: timestamp('created_at',{withTimezone:true}).notNull(),
-  expiresAt: timestamp('expires_at',{withTimezone:true}),
-});
-
 /**
  * The shared product catalog, owned by the members portal.
  *

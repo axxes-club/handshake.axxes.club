@@ -83,20 +83,11 @@ export function oidcClients(): OidcClient[] {
     client("vitrine", "Vitrine", VITRINE_REDIRECTS, "VITRINE_OIDC_CLIENT_SECRET"),
     client("afters", "afters", AFTERS_REDIRECTS, "AFTERS_OIDC_CLIENT_SECRET"),
   ].filter((c): c is OidcClient => c !== null);
-  if (process.env.WORKSPACE_OIDC_ENABLED === 'true') {
-    const now = new Date();
-    clients.push(...[
-      {clientId:'axxes-ios',name:'AXXES for iPhone and iPad',redirectUrls:['axxes://oauth/ios']},
-      {clientId:'axxes-android',name:'AXXES for Android',redirectUrls:['axxes://oauth/android']},
-    ].map(value=>({...value,type:'public' as const,disabled:false,createdAt:now,updatedAt:now,metadata:{product:'workspace'},skipConsent:true})));
-    const web=client('axxes-workspace-web','AXXES Workspace',['https://work.axxes.app/auth/callback'],'WORKSPACE_OIDC_CLIENT_SECRET');
-    if(web)clients.push(web);
-  }
   return clients;
 }
 
 /** Is this client allowed to ask for these scopes? */
-export const ALLOWED_SCOPES = ["openid", "email", "profile", ...(process.env.WORKSPACE_OIDC_ENABLED==='true'?['offline_access']:[])];
+export const ALLOWED_SCOPES = ["openid", "email", "profile"];
 
 /** The HS256 provider uses these claims verbatim, including OIDC's required issuer. */
 export function identityClaims(issuer: string, user: Record<string, unknown>) {
