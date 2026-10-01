@@ -4,7 +4,7 @@ import { nextCookies } from "better-auth/next-js";
 import { db } from "./db";
 import * as schema from "./schema";
 import { sendPasswordResetEmail } from "./email";
-import { oidcProvider } from "better-auth/plugins";
+import { oidcProvider, jwt } from "better-auth/plugins";
 import { ALLOWED_SCOPES, oidcClients, identityClaims } from "./oidc";
 
 // Set in production so every *.axxes.club app shares one signed-in session
@@ -50,6 +50,7 @@ export const auth = betterAuth({
       oauthApplication: schema.oauthApplication,
       oauthAccessToken: schema.oauthAccessToken,
       oauthConsent: schema.oauthConsent,
+      jwks: schema.jwks,
     },
   }),
   emailAndPassword: {
@@ -60,16 +61,18 @@ export const auth = betterAuth({
     },
   },
   // Sign-up only goes through our server action, which enforces invite codes
-  disabledPaths: ["/sign-up/email"],
+  disabledPaths: ["/sign-up/email", ...(process.env.WORKSPACE_OIDC_ENABLED==='true'?['/token']:[])],
   trustedOrigins,
   advanced: cookieDomain ? { crossSubDomainCookies: { enabled: true, domain: cookieDomain } } : undefined,
   plugins: [
     nextCookies(),
+    ...(process.env.WORKSPACE_OIDC_ENABLED==='true'?[jwt({disableSettingJwtHeader:true,jwks:{keyPairConfig:{alg:'RS256'},rotationInterval:60*60*24*30}})]:[]),
     // Handshake is the identity provider for the suite. A signed-in AXXES
     // account can enter any registered product without a second sign-up.
     // Clients live in code (src/lib/oidc.ts), not in a public registration
     // endpoint, so adding a product is a reviewed change.
     oidcProvider({
+      useJWTPlugin: process.env.WORKSPACE_OIDC_ENABLED==='true',
       loginPage: "/sign-in",
       metadata: {
         issuer: process.env.BETTER_AUTH_URL,

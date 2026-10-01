@@ -9,7 +9,7 @@
     "lint": "eslint",
     "check:catalog": "node scripts/check-handshake.mjs",
     "check:sso": "node scripts/check-sso.mjs",
-    "test:unit": "tsx --test src/lib/account/*.test.ts",
+    "test:unit": "tsx --test src/lib/account/*.test.ts src/lib/oidc.test.ts",
     "test": "npm run test:unit && tsx --test tests/office-client.test.ts"
   },
   "dependencies": {

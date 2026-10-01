@@ -1,0 +1,5 @@
+# Workspace OIDC activation
+
+Workspace OIDC is disabled unless `WORKSPACE_OIDC_ENABLED=true`. The existing Office, Qortr, Vitrine and Afters clients and issuer claim remain configured. Native clients are public and require PKCE with exact `axxes://oauth/ios` and `axxes://oauth/android` callbacks. The optional Workspace web client requires `WORKSPACE_OIDC_CLIENT_SECRET` and only redirects to `https://work.axxes.app/auth/callback`. The flag also enables RS256 JWT signing and `offline_access`; existing clients must be validated against this signing change before activation.
+
+Before enabling the flag, apply the additive reviewed `scripts/workspace-jwks.sql` migration to the source database. Private JWKS keys must remain protected by the source database's access control and backups; runtime needs insert/read/update privileges. Neither CI nor this code applies the migration or enables the production flag. Test issuer, JWKS discovery, refresh, revocation, native PKCE and existing web clients against staging before production activation.
