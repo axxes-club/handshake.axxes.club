@@ -1,3 +1,5 @@
+import {guardPlatformAuth,platformAccessAllowed} from '@/lib/platform-access';
+import {APIError} from 'better-auth/api';
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
@@ -37,7 +39,7 @@ const trustedOrigins = [
   ...extraOrigins,
 ];
 
-export const auth = betterAuth({
+const baseAuth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, {
@@ -52,6 +54,7 @@ export const auth = betterAuth({
       oauthConsent: schema.oauthConsent,
     },
   }),
+  databaseHooks: { session: { create: { before: async (session) => { if(!await platformAccessAllowed(session.userId)) throw new APIError('FORBIDDEN',{message:'Account access is suspended.'}); return {data:session}; } } } },
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
@@ -92,3 +95,5 @@ export const auth = betterAuth({
     }),
   ],
 });
+
+export const auth = guardPlatformAuth(baseAuth);
