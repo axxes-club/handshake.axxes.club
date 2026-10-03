@@ -15,7 +15,7 @@ export class OAuthError extends Error {constructor(public code:string,public sta
 export const hash=(value:string)=>'sha256:'+createHash('sha256').update(value).digest('hex');
 const access=()=>Array.from({length:32},()=> 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'[randomInt(52)]).join('');
 const secretEqual=(a:string,b:string)=>{const ah=createHash('sha256').update(a).digest(),bh=createHash('sha256').update(b).digest();return timingSafeEqual(ah,bh)};
-export function workspaceClients(env:Record<string,string|undefined>):Client[]{return [{id:'axxes-ios',redirects:['axxes://oauth/ios']},{id:'axxes-android',redirects:['axxes://oauth/android']},...(env.WORKSPACE_OIDC_CLIENT_SECRET?[{id:'axxes-workspace-web',redirects:['https://work.axxes.app/auth/callback'],secret:env.WORKSPACE_OIDC_CLIENT_SECRET}]:[])];}
+export function workspaceClients(env:Record<string,string|undefined>):Client[]{return [{id:'axxes-ios',redirects:['axxes://oauth/ios']},{id:'axxes-android',redirects:['axxes://oauth/android']},...(env.WORKSPACE_OIDC_CLIENT_SECRET?[{id:'axxes-workspace-web',redirects:['https://work.axxes.app/auth/callback','https://members.axxes.club/api/workspace/auth/callback'],secret:env.WORKSPACE_OIDC_CLIENT_SECRET}]:[])];}
 export function createWorkspaceOidc({store,issuer,clients,now=()=>new Date()}:{store:Store;issuer:string;clients:Client[];now?:()=>Date}) {
  const client=(id:string)=>{const value=clients.find(c=>c.id===id);if(!value)throw new OAuthError('invalid_client',401);return value};
  const authenticate=(body:URLSearchParams)=>{const c=client(body.get('client_id')??'');if(c.secret&&!secretEqual(c.secret,body.get('client_secret')??''))throw new OAuthError('invalid_client',401);return c};
