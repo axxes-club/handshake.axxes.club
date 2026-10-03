@@ -78,6 +78,7 @@ const AFTERS_REDIRECTS = [
 
 export function oidcClients(): OidcClient[] {
   const clients = [
+    client("folders", "Folders", ["https://folders.axxes.app/api/auth/axxes/callback"], "FOLDERS_OIDC_CLIENT_SECRET"),
     client("office", "AXXES Work", ["https://axxes.work/api/auth/axxes/callback", "http://localhost:3111/api/auth/axxes/callback"], "OFFICE_OIDC_CLIENT_SECRET"),
     client("qortr", "Qortr", QORTR_REDIRECTS, "QORTR_OIDC_CLIENT_SECRET"),
     client("vitrine", "Vitrine", VITRINE_REDIRECTS, "VITRINE_OIDC_CLIENT_SECRET"),
