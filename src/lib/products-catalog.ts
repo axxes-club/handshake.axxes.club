@@ -41,9 +41,9 @@ export const FALLBACK_PRODUCTS: Product[] = [
     description: "Kanban boards, sprints and pipelines with checklists, assignees, due dates and Jira-style keys.",
   },
   {
-    key: "folders", name: "Folders", category: "Work", color: "#3b82f6", url: "https://folders.axxes.club", sso: true,
+    key: "folders", name: "Folders", category: "Work", color: "#3b82f6", url: "https://folders.axxes.app", sso: true,
     tagline: "Store, organize and share files",
-    description: "A fast, familiar file library with folders, previews, share links and upload-from-phone.",
+    description: "Personal and business file libraries with folders, previews, sharing and native mobile uploads.",
   },
   {
     key: "nexus", name: "Nexus", category: "Work", color: "#2dd4bf", url: "https://nexus.axxes.club", sso: true, status: "beta",
