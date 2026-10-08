@@ -9,7 +9,7 @@
     "lint": "eslint",
     "check:catalog": "node scripts/check-handshake.mjs",
     "check:sso": "node scripts/check-sso.mjs",
-    "test:unit": "tsx --test src/lib/account/*.test.ts src/lib/oidc.test.ts src/lib/workspace-oidc/*.test.ts",
+    "test:unit": "tsx --test src/lib/account/*.test.ts src/lib/oidc.test.ts src/lib/workspace-oidc/*.test.ts src/lib/invite-security.test.ts",
     "test": "npm run test:unit && tsx --test tests/*-client.test.ts"
   },
   "dependencies": {
@@ -25,7 +25,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "0.5.8",
+    "@electric-sql/pglite": "0.3.16",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

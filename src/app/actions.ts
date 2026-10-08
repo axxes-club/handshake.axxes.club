@@ -1,10 +1,10 @@
 "use server";
 
-import { eq, sql } from "drizzle-orm";
+import {reserveInvite} from "@/lib/invite-security";
+import {securityPool,admitRequest} from "@/lib/security/admission-server";
 import { APIError } from "better-auth/api";
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { inviteCodes } from "@/lib/schema";
+
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -13,11 +13,8 @@ export async function signUpWithInvite(input: { name: string; email: string; pas
   const code = input.inviteCode.trim().toUpperCase();
   if (!code) return { ok: false, error: "An invite code is required" };
 
-  const [invite] = await db.select().from(inviteCodes).where(eq(inviteCodes.code, code));
-  if (!invite) return { ok: false, error: "That invite code isn't valid" };
-  if (!invite.isActive) return { ok: false, error: "That invite code is no longer active" };
-  if (invite.expiresAt && invite.expiresAt < new Date()) return { ok: false, error: "That invite code has expired" };
-  if (invite.maxUses && invite.usedCount >= invite.maxUses) return { ok: false, error: "That invite code has been used up" };
+  await admitRequest(new Request('https://handshake.axxes.club/invite'), 'invite-enrollment', 600);
+  if(!await reserveInvite(securityPool(),code))return {ok:false,error:"That invite code is invalid, expired, inactive or used up"};
 
   try {
     await auth.api.signUpEmail({
@@ -28,9 +25,5 @@ export async function signUpWithInvite(input: { name: string; email: string; pas
     throw err;
   }
 
-  await db
-    .update(inviteCodes)
-    .set({ usedCount: sql`${inviteCodes.usedCount} + 1`, updatedAt: new Date() })
-    .where(eq(inviteCodes.id, invite.id));
   return { ok: true };
 }

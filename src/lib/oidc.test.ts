@@ -13,7 +13,7 @@ test('Workspace clients are isolated from the legacy provider and native clients
 });
 test('Workspace flag never adds a global JWT plugin or changes legacy signing policy',()=>{
  for(const enabled of ['false','true']){
- const output=execFileSync(process.execPath,['--import','tsx','--input-type=module','-e',"import {auth} from './src/lib/auth.ts';console.log(JSON.stringify({ids:auth.options.plugins.map(p=>p.id),paths:auth.options.disabledPaths,oidc:auth.options.plugins.find(p=>p.id==='oidc').options}))"],{env:{...process.env,BETTER_AUTH_URL:'https://handshake.axxes.club',BETTER_AUTH_SECRET:'unit-only-placeholder-secret-at-least-32-chars',WORKSPACE_OIDC_ENABLED:enabled},encoding:'utf8'});
+ const output=execFileSync(process.execPath,['--import','tsx','--input-type=module','-e',"const module=await import('./src/lib/auth.ts');const auth=module.auth??module.default.auth;console.log(JSON.stringify({ids:auth.options.plugins.map(p=>p.id),paths:auth.options.disabledPaths,oidc:auth.options.plugins.find(p=>p.id==='oidc').options}))"],{env:{...process.env,BETTER_AUTH_URL:'https://handshake.axxes.club',BETTER_AUTH_SECRET:'unit-only-placeholder-secret-at-least-32-chars',WORKSPACE_OIDC_ENABLED:enabled},encoding:'utf8'});
  const options=JSON.parse(output);assert.ok(!options.ids.includes('jwt'));assert.ok(options.ids.includes('oidc'));assert.ok(options.paths.includes('/sign-up/email'));assert.equal(options.oidc.useJWTPlugin,false);
  }
 });
