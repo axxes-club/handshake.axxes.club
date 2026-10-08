@@ -3,10 +3,12 @@
 import Link from "next/link";
 import type { Product } from "@/lib/products";
 import { useState } from "react";
+import { isPulseSignupReturn } from "@/lib/signup-policy";
 import { signUpWithInvite } from "@/app/actions";
 import { Alert, AuthShell, Button, Field, inputClass } from "@/components/ui";
 
 export function SignUpForm({ next, initialCode, products }: { next: string; initialCode: string; products: Product[] }) {
+  const pulseSignup = isPulseSignupReturn(next);
   const [form, setForm] = useState({ name: "", email: "", password: "", inviteCode: initialCode });
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -16,7 +18,7 @@ export function SignUpForm({ next, initialCode, products }: { next: string; init
     e.preventDefault();
     setPending(true);
     setError(null);
-    const result = await signUpWithInvite(form);
+    const result = await signUpWithInvite({ ...form, next });
     if (!result.ok) {
       setError(result.error);
       setPending(false);
@@ -28,8 +30,8 @@ export function SignUpForm({ next, initialCode, products }: { next: string; init
   return (
     <AuthShell
       products={products}
-      title="Create your AXXES account"
-      subtitle="One account for the AXXES Suite, Folders, Krates, Tollbooth and more."
+      title={pulseSignup ? "Create your Pulse account" : "Create your AXXES account"}
+      subtitle={pulseSignup ? "Start your 30-day free trial. No invite code or credit card required." : "One account for the AXXES Suite, Folders, Krates, Tollbooth and more."}
       footer={<>Already have an account? <Link href={`/sign-in?redirect=${encodeURIComponent(next)}`} className="font-medium text-accent hover:underline">Sign in</Link></>}
     >
       <form onSubmit={submit} className="grid gap-4">
@@ -42,9 +44,9 @@ export function SignUpForm({ next, initialCode, products }: { next: string; init
         <Field label="Password" hint="At least 8 characters.">
           <input type="password" required minLength={8} autoComplete="new-password" value={form.password} onChange={set("password")} className={inputClass} />
         </Field>
-        <Field label="Invite code" hint="AXXES is invite-only for now.">
+        {!pulseSignup && <Field label="Invite code" hint="AXXES is invite-only for now.">
           <input required value={form.inviteCode} onChange={set("inviteCode")} className={`${inputClass} uppercase tracking-wider`} />
-        </Field>
+        </Field>}
         {error && <Alert>{error}</Alert>}
         <Button type="submit" disabled={pending} className="mt-2 w-full">{pending ? "Creating account…" : "Create account"}</Button>
       </form>
