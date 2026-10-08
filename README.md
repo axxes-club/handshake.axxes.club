@@ -4,7 +4,7 @@ Central sign-in for every AXXES product (handshake.axxes.club).
 
 - Better Auth on the shared AXXES database (`user`, `session`, `account`, `verification` — schema owned by the members portal, never migrated from here).
 - In production `AUTH_COOKIE_DOMAIN=axxes.club`, so the session cookie is shared by every `*.axxes.club` app. Each app must use the same `BETTER_AUTH_SECRET` and better-auth version (1.4.19).
-- Sign-up is invite-only and runs server-side (`src/app/actions.ts`); the public `/api/auth/sign-up/email` route is disabled.
+- Sign-up runs server-side (`src/app/actions.ts`); the public `/api/auth/sign-up/email` route is disabled. Pulse registration is open without an invite when returning to its exact dashboard or validated session bridge. Other product registration retains invite checks. Server actions apply a bounded per-instance signup throttle.
 - Apps send signed-out users to `/sign-in?redirect=<url>` and sign out via `/sign-out?redirect=<url>`. Redirects are limited to the AXXES parent domain.
 
 ## Env
