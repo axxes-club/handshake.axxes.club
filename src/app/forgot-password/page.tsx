@@ -1,11 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { passwordReturn, pulseReturnPath } from "@/lib/signup-policy";
+import { safeRedirect } from "@/lib/redirect";
 import { authClient } from "@/lib/auth-client";
 import { Alert, AuthShell, Button, Field, inputClass } from "@/components/ui";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordForm() {
+  const params = useSearchParams();
+  const next = passwordReturn(safeRedirect(params.get("redirect")));
+  const pulse = pulseReturnPath(next) !== null;
+  const query = next === "/" ? "" : `?redirect=${encodeURIComponent(next)}`;
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +23,7 @@ export default function ForgotPasswordPage() {
     setPending(true);
     setError(null);
     // Same folding as sign-in: stored addresses are lowercased.
-    const { error } = await authClient.requestPasswordReset({ email: email.trim().toLowerCase(), redirectTo: "/reset-password" });
+    const { error } = await authClient.requestPasswordReset({ email: email.trim().toLowerCase(), redirectTo: `/reset-password${query}` });
     setPending(false);
     if (error) setError(error.message ?? "Something went wrong");
     else setSent(true);
@@ -24,9 +31,10 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      title="Reset your password"
-      subtitle="We'll email you a link to choose a new one."
-      footer={<Link href="/sign-in" className="font-medium text-accent hover:underline">Back to sign in</Link>}
+      originatingProduct={pulse ? "pulse" : undefined}
+      title={pulse ? "Get back to Pulse" : "Reset your password"}
+      subtitle={pulse ? "We'll email you a link to reset your AXXES account password, then return you to Pulse." : "We'll email you a link to choose a new one."}
+      footer={<Link href={`/sign-in${query}`} className="font-medium text-accent hover:underline">Back to sign in</Link>}
     >
       {sent ? (
         <Alert tone="success">If an account exists for {email}, a reset link is on its way. It expires in 1 hour.</Alert>
@@ -41,4 +49,8 @@ export default function ForgotPasswordPage() {
       )}
     </AuthShell>
   );
+}
+
+export default function ForgotPasswordPage() {
+  return <Suspense><ForgotPasswordForm /></Suspense>;
 }
