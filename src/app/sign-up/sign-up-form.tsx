@@ -30,6 +30,7 @@ export function SignUpForm({ next, initialCode, products }: { next: string; init
   return (
     <AuthShell
       products={products}
+      originatingProduct={pulseSignup ? "pulse" : undefined}
       title={pulseSignup ? "Create your Pulse account" : "Create your AXXES account"}
       subtitle={pulseSignup ? "Start your 30-day free trial. No invite code or credit card required." : "One account for the AXXES Suite, Folders, Krates, Tollbooth and more."}
       footer={<>Already have an account? <Link href={`/sign-in?redirect=${encodeURIComponent(next)}`} className="font-medium text-accent hover:underline">Sign in</Link></>}

@@ -6,9 +6,9 @@ export function cx(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export function Brand({ className }: { className?: string }) {
+export function Brand({ className, href = "/" }: { className?: string; href?: string }) {
   return (
-    <Link href="/" className={cx("flex items-center gap-2.5", className)}>
+    <Link href={href} className={cx("flex items-center gap-2.5", className)}>
       <span className="grid size-8 place-items-center rounded-lg bg-accent font-mono text-sm font-bold text-accent-ink">A</span>
       <span className="leading-tight">
         <span className="block text-[15px] font-semibold tracking-tight">AXXES</span>
@@ -94,30 +94,37 @@ export function ProductGrid({ compact = false, products = FALLBACK_PRODUCTS }: {
   );
 }
 
-export function AuthShell({ title, subtitle, children, footer, products = FALLBACK_PRODUCTS }: {
+export function AuthShell({ title, subtitle, children, footer, products = FALLBACK_PRODUCTS, originatingProduct }: {
   title: string;
   subtitle?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
   products?: Product[];
+  originatingProduct?: "pulse";
 }) {
+  const pulse = originatingProduct === "pulse";
   const sso = products.filter((p) => p.sso || p.status === "live");
   return (
     <main className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
       <div className="flex flex-col px-6 py-8 sm:px-12">
-        <Brand />
+        <Brand href={pulse ? "https://pulse.axxes.app" : "/"} />
         <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center py-12">
           <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
           {subtitle && <p className="mt-2 text-muted">{subtitle}</p>}
+          {pulse && <p className="mt-3 text-sm text-muted">After signing in, you will return to the Pulse page you opened.</p>}
           <div className="mt-8">{children}</div>
           {footer && <div className="mt-8 text-sm text-muted">{footer}</div>}
         </div>
         <p className="text-xs text-muted">
-          <Link href="/apps" className="hover:text-text">All AXXES products</Link> · <a href="https://axxes.club" className="hover:text-text">axxes.club</a>
+          {pulse ? <a href="https://pulse.axxes.app" className="hover:text-text">Return to Pulse</a> : <><Link href="/apps" className="hover:text-text">All AXXES products</Link> · <a href="https://axxes.club" className="hover:text-text">axxes.club</a></>}
         </p>
       </div>
 
-      <aside className="relative hidden overflow-hidden border-l border-line bg-panel lg:flex lg:flex-col lg:justify-center lg:px-14" aria-label="AXXES products">
+      {pulse ? <aside className="hidden border-l border-line bg-panel lg:flex lg:flex-col lg:justify-center lg:px-14" aria-label="Continue to Pulse">
+        <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent">Pulse</p>
+        <h2 className="mt-4 max-w-md text-4xl font-semibold leading-tight tracking-tight">Your analytics workspace.</h2>
+        <p className="mt-4 max-w-md text-muted">Your AXXES account signs you in to Pulse. You will return to the Pulse page you opened.</p>
+      </aside> : <aside className="relative hidden overflow-hidden border-l border-line bg-panel lg:flex lg:flex-col lg:justify-center lg:px-14" aria-label="AXXES products">
         <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 size-[520px] rounded-full bg-accent/10 blur-[120px]" />
         <p className="relative font-mono text-[11px] uppercase tracking-[0.25em] text-accent">One account</p>
         <h2 className="relative mt-4 max-w-md text-4xl font-semibold leading-tight tracking-tight">Sign in once. Every AXXES app opens.</h2>
@@ -132,7 +139,7 @@ export function AuthShell({ title, subtitle, children, footer, products = FALLBA
             </li>
           ))}
         </ul>
-      </aside>
+      </aside>}
     </main>
   );
 }
