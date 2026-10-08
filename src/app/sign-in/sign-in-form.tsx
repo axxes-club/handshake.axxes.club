@@ -1,5 +1,6 @@
 "use client";
 
+import { pulseReturnPath, passwordReturn, isPulseSignupReturn, signInReturn } from "@/lib/signup-policy";
 import Link from "next/link";
 import type { Product } from "@/lib/products";
 import { useState } from "react";
@@ -20,7 +21,11 @@ export function SignInForm({ next, products, brand, locale = "en" }: { next: str
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const query = next === "/" ? "" : `?redirect=${encodeURIComponent(next)}`;
+  const pulse = !brand && pulseReturnPath(next) !== null;
+  const passwordNext = passwordReturn(next);
+  const passwordQuery = passwordNext === "/" ? "" : `?redirect=${encodeURIComponent(passwordNext)}`;
+  const signupNext = pulse && !isPulseSignupReturn(next) ? `https://pulse.axxes.club${pulseReturnPath(next)}` : next;
+  const query = signupNext === "/" ? "" : `?redirect=${encodeURIComponent(signupNext)}`;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +39,8 @@ export function SignInForm({ next, products, brand, locale = "en" }: { next: str
       setPending(false);
       return;
     }
-    // Mid-OIDC sign-in: Handshake answers with the product's callback URL
-    window.location.assign(data?.redirect && data.url ? data.url : next);
+    // Preserve explicit Pulse intent even if an abandoned OIDC flow returns a callback.
+    window.location.assign(signInReturn(next, data));
   };
 
   const form = (
@@ -48,7 +53,7 @@ export function SignInForm({ next, products, brand, locale = "en" }: { next: str
       </Field>
       {error && <Alert>{error}</Alert>}
       <div className="mt-2 flex items-center justify-between">
-        <Link href={`/forgot-password${query}`} className="text-sm text-muted hover:text-text">
+        <Link href={`/forgot-password${passwordQuery}`} className="text-sm text-muted hover:text-text">
           {w.forgot}
         </Link>
         <Button type="submit" disabled={pending}>{pending ? w.signingIn : w.signIn}</Button>
@@ -61,9 +66,10 @@ export function SignInForm({ next, products, brand, locale = "en" }: { next: str
   return (
     <AuthShell
       products={products}
-      title="Sign in"
-      subtitle="Use your AXXES account to continue."
-      footer={<>New to AXXES? <Link href={`/sign-up${query}`} className="font-medium text-accent hover:underline">Create an account</Link></>}
+      originatingProduct={pulse ? "pulse" : undefined}
+      title={pulse ? "Sign in to Pulse" : "Sign in"}
+      subtitle={pulse ? "Continue to your Pulse analytics workspace." : "Use your AXXES account to continue."}
+      footer={<>{pulse ? "New to Pulse?" : "New to AXXES?"} <Link href={`/sign-up${query}`} className="font-medium text-accent hover:underline">Create an account</Link></>}
     >
       {form}
     </AuthShell>
