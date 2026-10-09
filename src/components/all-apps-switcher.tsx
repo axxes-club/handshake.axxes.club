@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react"
 import { createPortal } from "react-dom"
+import { discoverableProducts } from "@/lib/products-catalog"
 
 export type SuiteApp = { key: string; name: string; description?: string; tagline?: string; url: string; color?: string; status: string; workspaceLaunch?: boolean }
 const CATALOG = "https://members.axxes.club/api/axxes/products"
@@ -81,10 +82,10 @@ export function AllAppsSwitcher({ tenantId, compact = false }: { tenantId?: stri
       .then(async response => { if (!response.ok) throw new Error(); return response.json() })
       .then(data => {
         if (!Array.isArray(data.products)) throw new Error()
-        setApps(data.products.filter((app: SuiteApp) => {
+        setApps(discoverableProducts(data.products.filter((app: SuiteApp) => {
           if (!app || typeof app.key !== "string" || typeof app.name !== "string" || !["live", "beta"].includes(app.status)) return false
           try { appLaunchUrl(app); return true } catch { return false }
-        }))
+        })))
       })
       .catch(() => { if (!abort.signal.aborted) setError("Could not load apps. Please try again.") })
       .finally(() => { if (!abort.signal.aborted) setLoading(false) })
