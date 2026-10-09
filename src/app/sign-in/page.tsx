@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getProducts } from "@/lib/products";
+import { getPromotedProducts } from "@/lib/products";
 import { getSession } from "@/lib/session";
 import { safeRedirect } from "@/lib/redirect";
 import { SignInForm } from "./sign-in-form";
@@ -16,5 +16,5 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   const next = oidc ?? safeRedirect(params.redirect);
   // Already signed in: bounce straight back to the app that sent them
   if (await getSession()) redirect(next);
-  return <SignInForm products={await getProducts()} next={next} />;
+  return <SignInForm products={await getPromotedProducts()} next={next} />;
 }
