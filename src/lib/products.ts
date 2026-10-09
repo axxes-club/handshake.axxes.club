@@ -1,5 +1,5 @@
 import { discoverableProducts, CATEGORIES, FALLBACK_PRODUCTS, type Category, type Product } from "./products-catalog";
-export { CATEGORIES, FALLBACK_PRODUCTS, type Category, type Product } from "./products-catalog";
+export { CATEGORIES, FALLBACK_PRODUCTS, promotedProducts, type Category, type Product } from "./products-catalog";
 
 /**
  * The live catalog.
@@ -52,6 +52,12 @@ export async function getProducts(): Promise<Product[]> {
     console.error("[products] falling back to the hardcoded catalog:", err);
     return discoverableProducts(FALLBACK_PRODUCTS);
   }
+}
+
+/** The catalog as shown on public pages (sign-in, sign-up, /apps). */
+export async function getPromotedProducts(): Promise<Product[]> {
+  const { promotedProducts } = await import("./products-catalog");
+  return promotedProducts(await getProducts());
 }
 
 /** Categories, ordered, with only the ones that actually have products in them. */

@@ -2,7 +2,7 @@ import type { ConnectionInfo } from "./types";
 type Identity = { id: string; providerId: string; createdAt: Date; [key: string]: unknown };
 type Consent = { clientId: string; scopes: string | null; consentGiven: boolean; createdAt: Date; [key: string]: unknown };
 type Token = { clientId: string; createdAt: Date; accessTokenExpiresAt: Date; refreshTokenExpiresAt: Date; [key: string]: unknown };
-const products: Record<string, string> = { qortr: "Rooms", vitrine: "Vitrine", afters: "afters.am" };
+const products: Record<string, string> = { qortr: "Qortr", vitrine: "Vitrine", afters: "afters.am" };
 export function connectionMetadata(identities: Identity[], consents: Consent[], tokens: Token[], names: Record<string, string> = {}): ConnectionInfo[] {
   const result: ConnectionInfo[] = [];
   const providers = new Set<string>();

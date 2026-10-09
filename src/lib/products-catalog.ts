@@ -66,12 +66,12 @@ export const FALLBACK_PRODUCTS: Product[] = [
     description: "QR codes around the venue open a night-flash camera; every photo lands on a live feed and a TV wall, tagged to the right event.",
   },
   {
-    key: "qortr", name: "Rooms", category: "Events", color: "#22d3ee", url: "https://qortr.axxes.club", status: "beta",
+    key: "qortr", name: "Qortr", category: "Events", color: "#22d3ee", url: "https://qortr.axxes.club", status: "beta",
     tagline: "The room, booked and paid",
     description: "Book rooms and venues with interactive floor maps and flexible pricing, so the calendar and the till agree.",
   },
   {
-    key: "tollbooth", name: "Payments", category: "Commerce", color: "#a78bfa", url: "https://tollbooth.axxes.club", sso: true, status: "beta",
+    key: "tollbooth", name: "Tollbooth", category: "Commerce", color: "#a78bfa", url: "https://tollbooth.axxes.club", sso: true, status: "beta",
     tagline: "Paid, and paid out",
     description: "Hosted checkout, payouts to your bank, and one reconciliation of what was charged against what actually landed.",
   },
@@ -86,7 +86,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     description: "Private collection archives for serious art collections — provenance, condition and legacy in one quiet desk.",
   },
   {
-    key: "api", name: "AXXES for Builders", category: "Developers", color: "#94a3b8", url: "https://api.axxes.club", status: "live",
+    key: "api", name: "AXXES API", category: "Developers", color: "#94a3b8", url: "https://api.axxes.club", status: "live",
     tagline: "Put your event on AXXES",
     description: "Events, ticket types, orders and check-ins as an API, plus webhooks. Built for teams shipping their own product on top of ours.",
   },
@@ -100,5 +100,24 @@ export function discoverableProducts<T extends { key: string; name: string; url:
       const host = new URL(product.url).hostname;
       return !["manifest.axxes.club", "stock.axxes.app", "wm.axxes.app"].includes(host);
     } catch { return false; }
-  }).map(product => ({ ...product, name: product.key === "tollbooth" || product.name === "AXXES Pay" ? "Payments" : product.name }));
+  }).map(product => ({ ...product, name: DISPLAY_NAMES[product.key.toLowerCase()] ?? product.name }));
+}
+
+/** Names the owner set; catalog rows may still carry older ones ("Rooms", "AXXES Pay", "AXXES for Builders"). */
+const DISPLAY_NAMES: Record<string, string> = { tollbooth: "Tollbooth", qortr: "Qortr", api: "AXXES API" };
+
+// Owner decisions 2026-10-09: these are not advertised on public AXXES pages,
+// and products that are not ready ("soon") are never shown there.
+const NOT_PROMOTED_KEYS = new Set(["matter", "krates", "vitrine", "keel", "binnacle"]);
+const NOT_PROMOTED_HOSTS = new Set(["matter.axxes.app", "matter.axxes.club", "kr8s.axxes.club", "krates.axxes.app", "vitrine.axxes.app", "vitrine.axxes.club", "cloud.axxes.app", "payments.axxes.app", "keel.axxes.club", "binnacle.axxes.club"]);
+
+/**
+ * The public list for sign-in, sign-up and /apps. Account pages keep using the
+ * full catalog, because they show the apps a person already uses.
+ */
+export function promotedProducts<T extends { key: string; url: string; status?: string }>(products: T[]): T[] {
+  return products.filter(product => {
+    if (product.status === "soon" || NOT_PROMOTED_KEYS.has(product.key.toLowerCase())) return false;
+    try { return !NOT_PROMOTED_HOSTS.has(new URL(product.url).hostname); } catch { return false; }
+  });
 }

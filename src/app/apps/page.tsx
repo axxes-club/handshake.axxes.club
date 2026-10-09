@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Brand, ProductGrid } from "@/components/ui";
-import { getProducts } from "@/lib/products";
+import { getPromotedProducts } from "@/lib/products";
 import { getSession } from "@/lib/session";
 import { AllAppsSwitcher } from "@/components/all-apps-switcher";
 
@@ -11,7 +11,7 @@ export default async function AppsPage() {
   const session = await getSession();
   // From the shared catalog, so a new product appears here by adding one row
   // in the portal rather than by editing a list in this repository.
-  const products = await getProducts();
+  const products = await getPromotedProducts();
   const ssoCount = products.filter((p) => p.sso).length;
   return (
     <div className="min-h-dvh">
