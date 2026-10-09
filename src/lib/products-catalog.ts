@@ -71,7 +71,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     description: "Book rooms and venues with interactive floor maps and flexible pricing, so the calendar and the till agree.",
   },
   {
-    key: "tollbooth", name: "Tollbooth", category: "Commerce", color: "#a78bfa", url: "https://tollbooth.axxes.club", sso: true, status: "beta",
+    key: "tollbooth", name: "Payments", category: "Commerce", color: "#a78bfa", url: "https://tollbooth.axxes.club", sso: true, status: "beta",
     tagline: "Paid, and paid out",
     description: "Hosted checkout, payouts to your bank, and one reconciliation of what was charged against what actually landed.",
   },
@@ -86,13 +86,19 @@ export const FALLBACK_PRODUCTS: Product[] = [
     description: "Private collection archives for serious art collections — provenance, condition and legacy in one quiet desk.",
   },
   {
-    key: "manifest", name: "Stock", category: "Commerce", color: "#c8ff3d", url: "https://manifest.axxes.club", sso: true, status: "beta",
-    tagline: "Every number explains itself",
-    description: "Purchasing, fulfilment, transfers and quality on one honest ledger. Immovable stock moves, mistakes reversed rather than edited, and a cost layer that can be read line by line.",
-  },
-  {
     key: "api", name: "AXXES for Builders", category: "Developers", color: "#94a3b8", url: "https://api.axxes.club", status: "live",
     tagline: "Put your event on AXXES",
     description: "Events, ticket types, orders and check-ins as an API, plus webhooks. Built for teams shipping their own product on top of ours.",
   },
 ];
+
+/** Owner-only operations and unreleased inventory stay out of discovery. */
+export function discoverableProducts<T extends { key: string; name: string; url: string }>(products: T[]): T[] {
+  return products.filter(product => {
+    if (["manifest", "stock", "webmaster"].includes(product.key.toLowerCase())) return false;
+    try {
+      const host = new URL(product.url).hostname;
+      return !["manifest.axxes.club", "stock.axxes.app", "wm.axxes.app"].includes(host);
+    } catch { return false; }
+  }).map(product => ({ ...product, name: product.key === "tollbooth" || product.name === "AXXES Pay" ? "Payments" : product.name }));
+}

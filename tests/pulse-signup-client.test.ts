@@ -10,15 +10,6 @@ test('Pulse signup accepts only exact secure Pulse destinations', () => {
   }
 });
 
-import { allowSignupAttempt, signupClientAddress } from '../src/lib/signup-rate-limit';
-test('signup throttles bursts, isolates clients, and permits retry after the window', () => {
-  for (let i = 0; i < 10; i++) assert.equal(allowSignupAttempt('client-a', 1000), true);
-  assert.equal(allowSignupAttempt('client-a', 1000), false);
-  assert.equal(allowSignupAttempt('client-b', 1000), true);
-  assert.equal(allowSignupAttempt('client-a', 61000), true);
-  assert.equal(signupClientAddress(new Headers({'x-forwarded-for': 'spoofed, 198.51.100.1, 203.0.113.2'})), '198.51.100.1');
-});
-
 import { pulseReturnPath, passwordReturn } from '../src/lib/signup-policy';
 test('recognizes Pulse dashboard pages and preserves their path and query through auth', () => {
   const path='/dashboard/funnels?site=app_123&funnel=goal_a';
@@ -49,4 +40,18 @@ test('rejects disguised Pulse and unsafe nested dashboard returns', () => {
 test('bounds dashboard return paths and rejects encoded path confusion',()=>{
  for(const path of ['/dashboard%2fother','/dashboard/\\evil.com','/dashboard?query='+ 'a'.repeat(2000)])
    assert.equal(pulseReturnPath('https://pulse.axxes.club'+path),null,path);
+});
+
+import {signupClientAddress,admitSignup} from '../src/lib/signup-security';
+import {PGlite} from '@electric-sql/pglite';
+test('signup trusts only the exact LB tail and shares durable client quota',async()=>{
+ assert.equal(signupClientAddress(new Headers({'x-forwarded-for':'1.2.3.4'})),null);
+ assert.equal(signupClientAddress(new Headers({'x-forwarded-for':'1.2.3.4,8.8.8.8'})),null);
+ const headers=new Headers({'x-forwarded-for':'spoofed,1.2.3.4,136.81.161.193'});
+ assert.equal(signupClientAddress(headers),'1.2.3.4');
+ const db=new PGlite();await db.exec('CREATE TABLE security_request_limits(service text,bucket text,count integer,expires_at timestamptz,PRIMARY KEY(service,bucket))');
+ const query={connect:async()=>({query:(sql:string,args?:unknown[])=>db.query(sql,args),release:()=>{}})};
+ try{for(let i=0;i<10;i++)await admitSignup(query,headers,`caller${i}@example.invalid`);
+ await assert.rejects(()=>admitSignup(query,headers,'another@example.invalid'),e=>(e as {status:number}).status===429);
+ }finally{await db.close()}
 });

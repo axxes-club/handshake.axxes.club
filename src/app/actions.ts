@@ -1,35 +1,30 @@
 "use server";
 
-import { headers } from "next/headers";
-import { eq, sql } from "drizzle-orm";
+import {headers} from "next/headers";
+import {isPulseSignupReturn} from "@/lib/signup-policy";
+import {admitSignup} from "@/lib/signup-security";
+import {reserveInvite} from "@/lib/invite-security";
+import {securityPool} from "@/lib/security/admission-server";
 import { APIError } from "better-auth/api";
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { inviteCodes } from "@/lib/schema";
-import { allowSignupAttempt, signupClientAddress } from "@/lib/signup-rate-limit";
-import { isPulseSignupReturn } from "@/lib/signup-policy";
+
 
 type Result = { ok: true } | { ok: false; error: string };
 
-// Pulse is publicly available; other products retain their invitation policy.
+// Preserve live public Pulse enrollment; all other destinations require atomic invitation reservation.
 export async function signUpWithInvite(input: { name: string; email: string; password: string; inviteCode: string; next?: string }): Promise<Result> {
-  const requestHeaders = await headers();
-  if (!allowSignupAttempt(signupClientAddress(requestHeaders))) return { ok: false, error: "Too many signup attempts. Please wait a minute and try again." };
+  if(!input||typeof input.email!=="string"||input.email.length>254||typeof input.name!=="string"||input.name.length>200||typeof input.password!=="string"||input.password.length>4096||typeof input.inviteCode!=="string"||input.inviteCode.length>128)return {ok:false,error:"Invalid signup details"};
   const code = input.inviteCode.trim().toUpperCase();
-  const pulseSignup = isPulseSignupReturn(input.next);
+  const pulseSignup=isPulseSignupReturn(input.next);
   if (!pulseSignup && !code) return { ok: false, error: "An invite code is required" };
 
-  const [invite] = pulseSignup ? [] : await db.select().from(inviteCodes).where(eq(inviteCodes.code, code));
-  if (!pulseSignup) {
-    if (!invite) return { ok: false, error: "That invite code isn't valid" };
-    if (!invite.isActive) return { ok: false, error: "That invite code is no longer active" };
-    if (invite.expiresAt && invite.expiresAt < new Date()) return { ok: false, error: "That invite code has expired" };
-    if (invite.maxUses && invite.usedCount >= invite.maxUses) return { ok: false, error: "That invite code has been used up" };
-  }
+  const requestHeaders=await headers();
+  await admitSignup(securityPool(),requestHeaders,input.email);
+  if(!pulseSignup && !await reserveInvite(securityPool(),code))return {ok:false,error:"That invite code is invalid, expired, inactive or used up"};
 
   try {
     await auth.api.signUpEmail({
-      headers: requestHeaders,
+      headers:requestHeaders,
       body: { name: input.name.trim(), email: input.email.trim().toLowerCase(), password: input.password },
     });
   } catch (err) {
@@ -37,9 +32,5 @@ export async function signUpWithInvite(input: { name: string; email: string; pas
     throw err;
   }
 
-  if (invite) await db
-    .update(inviteCodes)
-    .set({ usedCount: sql`${inviteCodes.usedCount} + 1`, updatedAt: new Date() })
-    .where(eq(inviteCodes.id, invite.id));
   return { ok: true };
 }

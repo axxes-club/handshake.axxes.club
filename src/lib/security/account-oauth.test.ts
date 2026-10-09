@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {createHash} from 'node:crypto';import {PGlite} from '@electric-sql/pglite';import {checkOAuthRequest,type Sql} from '../platform-access-core';
+test('native OAuth access and refresh hashes cannot bypass account suspension',async()=>{
+ const db=new PGlite();await db.exec('CREATE TABLE oauth_access_token(user_id text,access_token text,refresh_token text)');const token='A'.repeat(32),hash='sha256:'+createHash('sha256').update(token).digest('hex');await db.query('INSERT INTO oauth_access_token VALUES($1,$2,$2)',['suspended',hash]);
+ try{assert.equal(await checkOAuthRequest(new Request('https://handshake.axxes.club/api/auth/oauth2/userinfo',{headers:{authorization:'Bearer '+token}}),db as unknown as Sql,async()=>false),false);assert.equal(await checkOAuthRequest(new Request('https://handshake.axxes.club/api/auth/oauth2/token',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded'},body:new URLSearchParams({refresh_token:token})}),db as unknown as Sql,async()=>false),false);}finally{await db.close();}
+});

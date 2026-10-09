@@ -1,3 +1,5 @@
+import {wrapAdmission,admitAction} from '@/lib/security/admission-server';
+import {boundedText} from '@/lib/security/admission.mjs';
 import {auth} from '@/lib/auth';
 import {workspaceProvider} from '@/lib/workspace-oidc/runtime';
 import {OAuthError} from '@/lib/workspace-oidc/service';
@@ -14,15 +16,16 @@ async function handle(request:Request,context:{params:Promise<{path:string[]}>})
    const url=new URL(request.url);provider.authorization(url.searchParams);
    const session=await auth.api.getSession({headers:request.headers});
    if(!session){const login=new URL('/sign-in',process.env.BETTER_AUTH_URL);login.searchParams.set('redirect',url.pathname+url.search);return new Response(null,{status:302,headers:{...headers,Location:login.href}});}
+   await admitAction(session.user.id,'','workspace-oidc-authorize',120);
    return new Response(null,{status:302,headers:{...headers,Location:await provider.authorize(url.searchParams,session.user.id,new Date(session.session.createdAt))}});
   }
   if(request.method==='GET'&&action==='userinfo'){const bearer=request.headers.get('authorization')??'';if(!bearer.startsWith('Bearer '))throw new OAuthError('invalid_token',401);return Response.json(await provider.userinfo(bearer.slice(7)),{headers});}
   if(request.method==='POST'&&(action==='token'||action==='revoke')){
-   if(!request.headers.get('content-type')?.startsWith('application/x-www-form-urlencoded'))throw new OAuthError('invalid_request');const raw=await request.text();if(raw.length>8192)throw new OAuthError('invalid_request');const body=new URLSearchParams(raw);
+   if(!request.headers.get('content-type')?.startsWith('application/x-www-form-urlencoded'))throw new OAuthError('invalid_request');const raw=await boundedText(request,8192);if(raw.length>8192)throw new OAuthError('invalid_request');const body=new URLSearchParams(raw);
    if(action==='revoke'){await provider.revoke(body);return new Response(null,{status:200,headers});}
    return Response.json(await provider.token(body),{headers});
   }
   return Response.json({error:'invalid_request'},{status:404,headers});
  }catch(value){return error(value);}
 }
-export const GET=handle,POST=handle;
+export const GET=wrapAdmission(handle,"workspace-oidc-read"),POST=wrapAdmission(handle,"workspace-oidc-write",6000);

@@ -1,4 +1,4 @@
-import { CATEGORIES, FALLBACK_PRODUCTS, type Category, type Product } from "./products-catalog";
+import { discoverableProducts, CATEGORIES, FALLBACK_PRODUCTS, type Category, type Product } from "./products-catalog";
 export { CATEGORIES, FALLBACK_PRODUCTS, type Category, type Product } from "./products-catalog";
 
 /**
@@ -13,10 +13,8 @@ export { CATEGORIES, FALLBACK_PRODUCTS, type Category, type Product } from "./pr
  * That is the failure this removes: two lists, and no one responsible for the
  * difference between them.
  *
- * `surface_in_members` is deliberately NOT filtered here. That column answers
- * "should the suite sell this?", which is a different question from "does AXXES
- * offer this?". Hiding a product from the public page because a sales decision
- * moved would make this page wrong rather than tidy.
+ * Public discovery also excludes Stock/Manifest and private WebMaster operations,
+ * independently of the shared catalog's membership visibility.
  */
 export async function getProducts(): Promise<Product[]> {
   try {
@@ -29,9 +27,9 @@ export async function getProducts(): Promise<Product[]> {
       .from(axxesProduct)
       .orderBy(asc(axxesProduct.sortOrder));
 
-    if (!rows.length) return FALLBACK_PRODUCTS;
+    if (!rows.length) return discoverableProducts(FALLBACK_PRODUCTS);
 
-    return rows.map((r) => ({
+    return discoverableProducts(rows.map((r) => ({
       key: r.key,
       name: r.name,
       tagline: r.tagline,
@@ -47,12 +45,12 @@ export async function getProducts(): Promise<Product[]> {
         ? r.status
         : "soon") as Product["status"],
       sso: r.sso,
-    }));
+    })));
   } catch (err) {
     // Never take the public product page down over a query. Log it so it is
     // visible, and show the last-known-good list.
     console.error("[products] falling back to the hardcoded catalog:", err);
-    return FALLBACK_PRODUCTS;
+    return discoverableProducts(FALLBACK_PRODUCTS);
   }
 }
 
