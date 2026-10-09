@@ -9,7 +9,7 @@ export function cx(...classes: (string | false | null | undefined)[]) {
 export function Brand({ className, href = "/" }: { className?: string; href?: string }) {
   return (
     <Link href={href} className={cx("flex items-center gap-2.5", className)}>
-      <span className="grid size-8 place-items-center rounded-lg bg-accent font-mono text-sm font-bold text-accent-ink">A</span>
+      <span className="grid size-8 place-items-center rounded-[10px] app-tile text-sm font-bold">A</span>
       <span className="leading-tight">
         <span className="block text-[15px] font-semibold tracking-tight">AXXES</span>
         <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Account · Handshake</span>

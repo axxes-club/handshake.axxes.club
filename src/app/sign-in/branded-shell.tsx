@@ -10,7 +10,7 @@ export function BrandedShell({ brand, children }: { brand: SignInBrand; children
     <main
       className="grid min-h-dvh bg-white text-neutral-900 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
       // The theme's accent (button, focus ring, links) becomes the customer's color.
-      style={{ "--accent": brand.accent, "--product-accent": brand.accent, "--accent-ink": "#ffffff" } as React.CSSProperties}
+      style={{ "--accent": brand.accent, "--accent-deep": brand.accent, "--product-accent": brand.accent, "--accent-ink": "#ffffff" } as React.CSSProperties}
     >
       <div className="flex flex-col px-6 py-8 sm:px-12">
         <div className="flex h-14 items-center">
