@@ -65,6 +65,12 @@ const VITRINE_REDIRECTS = [
 ];
 
 /**
+ * Project ORC — the collection inventory for Vitrine members. One host; its
+ * better-auth generic OAuth rides the standard social callback path.
+ */
+const PROJECT_ORC_REDIRECTS = ["https://app.vitrine.axxes.app/api/auth/callback/axxes"];
+
+/**
  * afters — the nightlife product on its own domains. It keeps Clerk for its
  * existing accounts and adds "Continue with AXXES"; the callback route is
  * afters' /api/auth/axxes/callback on each host it answers on.
@@ -84,6 +90,7 @@ export function oidcClients(): OidcClient[] {
     client("qortr", "Qortr", QORTR_REDIRECTS, "QORTR_OIDC_CLIENT_SECRET"),
     client("vitrine", "Vitrine", VITRINE_REDIRECTS, "VITRINE_OIDC_CLIENT_SECRET"),
     client("afters", "afters", AFTERS_REDIRECTS, "AFTERS_OIDC_CLIENT_SECRET"),
+    client("project-orc", "Project ORC", PROJECT_ORC_REDIRECTS, "PROJECT_ORC_OIDC_CLIENT_SECRET"),
   ].filter((c): c is OidcClient => c !== null);
   return clients;
 }
